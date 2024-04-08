@@ -1,0 +1,18 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"script": "start",
+			"path": "wengaoGrid",
+			"problemMatcher": [],
+			"label": "npm: start - wengaoGrid",
+			"detail": "pluggable-widgets-tools start:server",
+			"options": {
+				"env": {
+					"MX_PROJECT_PATH": "${workspaceFolder}/WengaoGridTestProject"
+				}
+			}
+		}
+	]
+}
