@@ -1,11 +1,11 @@
 import { ReactElement, createElement, useCallback } from "react";
 
 import { WengaoGridContainerProps } from "../typings/WengaoGridProps";
-import { BadgeSample } from "./components/BadgeSample";
 import "./ui/WengaoGrid.css";
+import { MyTable } from "./components/MyTable";
 
 export function WengaoGrid(props: WengaoGridContainerProps): ReactElement {
-    const { wengaogridType, wengaogridValue, valueAttribute, onClickAction, style, bootstrapStyle } = props;
+    const { wengaogridType, wengaogridValue, valueAttribute, onClickAction, style } = props;
     const onClickHandler = useCallback(() => {
         if (onClickAction && onClickAction.canExecute) {
             onClickAction.execute();
@@ -13,9 +13,8 @@ export function WengaoGrid(props: WengaoGridContainerProps): ReactElement {
     }, [onClickAction]);
 
     return (
-        <BadgeSample
+            <MyTable
             type={wengaogridType}
-            bootstrapStyle={bootstrapStyle}
             className={props.class}
             clickable={!!onClickAction}
             defaultValue={wengaogridValue ? wengaogridValue : ""}
