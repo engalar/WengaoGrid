@@ -14,12 +14,8 @@ function parentInline(node?: HTMLElement | null): void {
 
 function transformProps(props: WengaoGridPreviewProps): MyTableProps {
     return {
-        type: props.wengaogridType,
         className: props.className,
-        clickable: false,
-        style: parseInlineStyle(props.style),
-        defaultValue: props.wengaogridValue ? props.wengaogridValue : "",
-        value: props.valueAttribute
+        style: parseInlineStyle(props.style)
     };
 }
 

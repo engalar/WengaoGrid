@@ -8,87 +8,106 @@ import {
     getExpandedRowModel,
     ColumnDef,
     flexRender,
-} from '@tanstack/react-table'
-import { createElement, useMemo, useState, CSSProperties } from 'react';
-import { Person, makeData } from './makeData';
-import classNames from 'classnames';
+    HeaderGroup,
+    Header
+} from "@tanstack/react-table";
+import { createElement, useMemo, useState, CSSProperties } from "react";
+import { Person, makeData } from "./makeData";
+import classNames from "classnames";
 
 export interface MyTableProps {
-    type: "badge" | "label";
-    defaultValue?: string;
     className?: string;
     style?: CSSProperties;
-    value?: string;
-    clickable?: boolean;
-    onClickAction?: () => void;
-    getRef?: (node: HTMLElement) => void;
 }
+export function getMergeHeaderGroups(headerGroups: Array<HeaderGroup<Person>>): Array<HeaderGroup<Person>> {
+    if (headerGroups.length === 1) {
+        return headerGroups;
+    }
+    const columnsIds = new Set();
 
+    return headerGroups.map((group, depth, { length: fullDepth }) => ({
+        ...group,
+        headers: group.headers
+            .filter(header => !columnsIds.has(header.column.id)) // Ignore already merged columns
+            .map((header): Header<Person, unknown> => {
+                columnsIds.add(header.column.id);
+                return header.isPlaceholder
+                    ? {
+                          ...header,
+                          // If the cell is placeholder(empty), then there will be no subgroup below it,
+                          // and this means that you can merge it with all lower cells in the column header
+                          isPlaceholder: false,
+                          rowSpan: fullDepth - depth
+                      }
+                    : { ...header, rowSpan: 1 };
+            })
+    }));
+}
 export function MyTable(_props: MyTableProps) {
-    const columns = useMemo<ColumnDef<Person>[]>(
+    const columns = useMemo<Array<ColumnDef<Person>>>(
         () => [
             {
-                header: 'Name',
+                header: "Name",
                 columns: [
                     {
-                        accessorKey: 'firstName',
-                        header: 'First Name',
+                        accessorKey: "firstName",
+                        header: "First Name",
                         cell: info => info.getValue(),
                         /**
                          * override the value used for row grouping
                          * (otherwise, defaults to the value derived from accessorKey / accessorFn)
                          */
-                        getGroupingValue: row => `${row.firstName} ${row.lastName}`,
+                        getGroupingValue: row => `${row.firstName} ${row.lastName}`
                     },
                     {
                         accessorFn: row => row.lastName,
-                        id: 'lastName',
+                        id: "lastName",
                         header: () => <span>Last Name</span>,
-                        cell: info => info.getValue(),
-                    },
-                ],
+                        cell: info => info.getValue()
+                    }
+                ]
             },
             {
-                header: 'Info',
+                header: "Info",
                 columns: [
                     {
-                        accessorKey: 'age',
-                        header: () => 'Age',
+                        accessorKey: "age",
+                        header: () => "Age",
                         aggregatedCell: ({ getValue }) => Math.round(getValue<number>() * 100) / 100,
-                        aggregationFn: 'median',
+                        aggregationFn: "median"
                     },
                     {
-                        header: 'More Info',
+                        header: "More Info",
                         columns: [
                             {
-                                accessorKey: 'visits',
+                                accessorKey: "visits",
                                 header: () => <span>Visits</span>,
-                                aggregationFn: 'sum',
+                                aggregationFn: "sum"
                                 // aggregatedCell: ({ getValue }) => getValue().toLocaleString(),
                             },
                             {
-                                accessorKey: 'status',
-                                header: 'Status',
+                                accessorKey: "status",
+                                header: "Status"
                             },
                             {
-                                accessorKey: 'progress',
-                                header: 'Profile Progress',
-                                cell: ({ getValue }) => Math.round(getValue<number>() * 100) / 100 + '%',
-                                aggregationFn: 'mean',
-                                aggregatedCell: ({ getValue }) => Math.round(getValue<number>() * 100) / 100 + '%',
-                            },
-                        ],
-                    },
-                ],
-            },
+                                accessorKey: "progress",
+                                header: "Profile Progress",
+                                cell: ({ getValue }) => Math.round(getValue<number>() * 100) / 100 + "%",
+                                aggregationFn: "mean",
+                                aggregatedCell: ({ getValue }) => Math.round(getValue<number>() * 100) / 100 + "%"
+                            }
+                        ]
+                    }
+                ]
+            }
         ],
         []
     );
-    const [data, setData] = useState(() => makeData(100000))
-    const refreshData = () => setData(() => makeData(100000))
+    const [data, setData] = useState(() => makeData(100000));
+    const refreshData = () => setData(() => makeData(100000));
 
-    const [grouping, setGrouping] = useState<GroupingState>([])
-    const [rowSelection, setRowSelection] = useState({})
+    const [grouping, setGrouping] = useState<GroupingState>([]);
+    const [rowSelection, setRowSelection] = useState({});
 
     const table = useReactTable({
         data,
@@ -105,18 +124,18 @@ export function MyTable(_props: MyTableProps) {
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
-        debugTable: true,
-    })
+        debugTable: true
+    });
     return (
         <div className="mx-grid mx-datagrid datagrid-sm datagrid-hover datagrid-bordered">
             <div className="h-2" />
             <table>
                 <thead>
-                    {table.getHeaderGroups().map(headerGroup => (
+                    {getMergeHeaderGroups(table.getHeaderGroups()).map(headerGroup => (
                         <tr key={headerGroup.id}>
                             {headerGroup.headers.map(header => {
                                 return (
-                                    <th key={header.id} colSpan={header.colSpan}>
+                                    <th key={header.id} colSpan={header.colSpan} rowSpan={header.rowSpan}>
                                         {header.isPlaceholder ? null : (
                                             <div>
                                                 {header.column.getCanGroup() ? (
@@ -125,23 +144,20 @@ export function MyTable(_props: MyTableProps) {
                                                         {...{
                                                             onClick: header.column.getToggleGroupingHandler(),
                                                             style: {
-                                                                cursor: 'pointer',
-                                                            },
+                                                                cursor: "pointer"
+                                                            }
                                                         }}
                                                     >
                                                         {header.column.getIsGrouped()
                                                             ? `🛑(${header.column.getGroupedIndex()}) `
                                                             : `👊 `}
                                                     </button>
-                                                ) : null}{' '}
-                                                {flexRender(
-                                                    header.column.columnDef.header,
-                                                    header.getContext()
-                                                )}
+                                                ) : null}{" "}
+                                                {flexRender(header.column.columnDef.header, header.getContext())}
                                             </div>
                                         )}
                                     </th>
-                                )
+                                );
                             })}
                         </tr>
                     ))}
@@ -149,21 +165,23 @@ export function MyTable(_props: MyTableProps) {
                 <tbody>
                     {table.getRowModel().rows.map(row => {
                         return (
-                            <tr key={row.id} className={classNames({ 'selected': row.getIsSelected() })} onClick={(e) => row.getToggleSelectedHandler()(e)}>
+                            <tr
+                                key={row.id}
+                                className={classNames({ selected: row.getIsSelected() })}
+                                onClick={e => row.getToggleSelectedHandler()(e)}
+                            >
                                 {row.getVisibleCells().map(cell => {
                                     return (
                                         <td
-                                            {...{
-                                                key: cell.id,
-                                                style: {
-                                                    background: cell.getIsGrouped()
-                                                        ? '#0aff0082'
-                                                        : cell.getIsAggregated()
-                                                            ? '#ffa50078'
-                                                            : cell.getIsPlaceholder()
-                                                                ? '#ff000042'
-                                                                : 'white',
-                                                },
+                                            key={cell.id}
+                                            style={{
+                                                background: cell.getIsGrouped()
+                                                    ? "#0aff0082"
+                                                    : cell.getIsAggregated()
+                                                    ? "#ffa50078"
+                                                    : cell.getIsPlaceholder()
+                                                    ? "#ff000042"
+                                                    : "white"
                                             }}
                                         >
                                             {cell.getIsGrouped() ? (
@@ -173,66 +191,86 @@ export function MyTable(_props: MyTableProps) {
                                                         {...{
                                                             onClick: row.getToggleExpandedHandler(),
                                                             style: {
-                                                                cursor: row.getCanExpand()
-                                                                    ? 'pointer'
-                                                                    : 'normal',
-                                                            },
+                                                                cursor: row.getCanExpand() ? "pointer" : "normal"
+                                                            }
                                                         }}
                                                     >
-                                                        {row.getIsExpanded() ? '👇' : '👉'}{' '}
-                                                        {flexRender(
-                                                            cell.column.columnDef.cell,
-                                                            cell.getContext()
-                                                        )}{' '}
-                                                        ({row.subRows.length})
+                                                        {row.getIsExpanded() ? "👇" : "👉"}{" "}
+                                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}{" "}
+                                                        {row.subRows.length})
                                                     </button>
                                                 </div>
                                             ) : cell.getIsAggregated() ? (
                                                 // If the cell is aggregated, use the Aggregated
                                                 // renderer for cell
                                                 flexRender(
-                                                    cell.column.columnDef.aggregatedCell ??
-                                                    cell.column.columnDef.cell,
+                                                    cell.column.columnDef.aggregatedCell ?? cell.column.columnDef.cell,
                                                     cell.getContext()
                                                 )
                                             ) : cell.getIsPlaceholder() ? null : ( // For cells with repeated values, render null
                                                 // Otherwise, just render the regular cell
-                                                flexRender(
-                                                    cell.column.columnDef.cell,
-                                                    cell.getContext()
-                                                )
+                                                flexRender(cell.column.columnDef.cell, cell.getContext())
                                             )}
                                         </td>
-                                    )
+                                    );
                                 })}
                             </tr>
-                        )
+                        );
                     })}
                 </tbody>
             </table>
             <div className="mx-grid-controlbar">
                 <div className="mx-grid-pagingbar" role="navigation" aria-label="Pagination">
-                    <button type="button" className="btn mx-button mx-name-paging-first" aria-label="Go to first page" onClick={() => table.setPageIndex(0)}
-                    disabled={!table.getCanPreviousPage()}><span className="glyphicon glyphicon-step-backward"></span>  </button>
-
-                    <button type="button" className="btn mx-button mx-name-paging-previous" aria-label="Go to previous page" onClick={() => table.previousPage()}
-                    disabled={!table.getCanPreviousPage()}><span className="glyphicon glyphicon-backward"></span>  </button>
-
-                    <div className="dijitInline mx-grid-paging-status" aria-hidden="true">{table.getState().pagination.pageIndex + 1} of{' '}
-                        {table.getPageCount()}</div> <span className="sr-only" >Currently showing 1 to 1 of 1</span>
-
-                    <button type="button" className="btn mx-button mx-name-paging-next" aria-label="Go to next page" onClick={() => table.nextPage()}
-                    disabled={!table.getCanNextPage()}><span className="glyphicon glyphicon-forward"></span>  </button>
-
-                    <button type="button" className="btn mx-button mx-name-paging-last" aria-label="Go to last page" onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-                    disabled={!table.getCanNextPage()}><span className="glyphicon glyphicon-step-forward"></span>  </button>
+                    <button
+                        type="button"
+                        className="btn mx-button mx-name-paging-first"
+                        aria-label="Go to first page"
+                        onClick={() => table.setPageIndex(0)}
+                        disabled={!table.getCanPreviousPage()}
+                    >
+                        <span className="glyphicon glyphicon-step-backward"></span>{" "}
+                    </button>
+                    <button
+                        type="button"
+                        className="btn mx-button mx-name-paging-previous"
+                        aria-label="Go to previous page"
+                        onClick={() => table.previousPage()}
+                        disabled={!table.getCanPreviousPage()}
+                    >
+                        <span className="glyphicon glyphicon-backward"></span>{" "}
+                    </button>
+                    <div className="dijitInline mx-grid-paging-status" aria-hidden="true">
+                        {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+                    </div>{" "}
+                    <span className="sr-only">Currently showing 1 to 1 of 1</span>
+                    <button
+                        type="button"
+                        className="btn mx-button mx-name-paging-next"
+                        aria-label="Go to next page"
+                        onClick={() => table.nextPage()}
+                        disabled={!table.getCanNextPage()}
+                    >
+                        <span className="glyphicon glyphicon-forward"></span>{" "}
+                    </button>
+                    <button
+                        type="button"
+                        className="btn mx-button mx-name-paging-last"
+                        aria-label="Go to last page"
+                        onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+                        disabled={!table.getCanNextPage()}
+                    >
+                        <span className="glyphicon glyphicon-step-forward"></span>{" "}
+                    </button>
                 </div>
             </div>
             <div>{table.getRowModel().rows.length} Rows</div>
             <div>
-                <button className='btn' onClick={() => refreshData()}>Refresh Data</button>
+                <button className="btn" onClick={() => refreshData()}>
+                    Refresh Data
+                </button>
             </div>
             <pre>{JSON.stringify(grouping, null, 2)}</pre>
             <pre>{JSON.stringify(rowSelection, null, 2)}</pre>
-        </div>)
+        </div>
+    );
 }

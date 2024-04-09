@@ -16,7 +16,7 @@
                 "<node_internals>/**"
             ],
             "type": "node",
-            "cwd": "${workspaceFolder}/WengaoGrid",
+            "cwd": "${workspaceFolder}",
             "env": {
                 "MX_PROJECT_PATH": "${workspaceFolder}/testProject"
             }
