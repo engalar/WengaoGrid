@@ -10,7 +10,7 @@
 			"detail": "pluggable-widgets-tools start:server",
 			"options": {
 				"env": {
-					"MX_PROJECT_PATH": "${workspaceFolder}/WengaoGridTestProject"
+					"MX_PROJECT_PATH": "${workspaceFolder}/testProject"
 				}
 			}
 		}

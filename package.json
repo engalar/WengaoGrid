@@ -10,7 +10,7 @@
   },
   "license": "all right reserve",
   "config": {
-    "projectPath": "./WengaoGridTestProject",
+    "projectPath": "./testProject",
     "mendixHost": "http://localhost:8080",
     "developmentPort": 3000
   },

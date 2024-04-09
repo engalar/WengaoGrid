@@ -18,7 +18,7 @@
             "type": "node",
             "cwd": "${workspaceFolder}/WengaoGrid",
             "env": {
-                "MX_PROJECT_PATH": "${workspaceFolder}/WengaoGridTestProject"
+                "MX_PROJECT_PATH": "${workspaceFolder}/testProject"
             }
         }
     ]
