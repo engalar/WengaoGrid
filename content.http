@@ -1,0 +1,10 @@
+GET /v1/content?name=Atlas%20Web%20Content&limit=10&offset=0 HTTP/1.1
+Host: marketplace-api.mendix.com
+accept: application/json
+Authorization: MxToken {{$dotenv MxPAT}}
+
+###
+GET /v1/content/117183 HTTP/1.1
+Host: marketplace-api.mendix.com
+accept: application/json
+Authorization: MxToken {{$dotenv MxPAT}}
