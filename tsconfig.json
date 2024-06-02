@@ -1,7 +1,12 @@
 {
   "extends": "@mendix/pluggable-widgets-tools/configs/tsconfig.base",
   "compilerOptions": {
+    "resolveJsonModule": true,
     "baseUrl": "./"
   },
-  "include": ["./src", "./typings"]
+  "include": [
+    "./src",
+    "./vite.config.ts",
+    "./typings"
+  ]
 }
