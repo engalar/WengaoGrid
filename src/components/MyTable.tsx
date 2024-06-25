@@ -9,9 +9,11 @@ import {
     ColumnDef,
     flexRender,
     HeaderGroup,
-    Header
+    Header,
+    Updater,
+    RowSelectionState
 } from "@tanstack/react-table";
-import { createElement, useMemo, useState, CSSProperties } from "react";
+import { createElement, useMemo, useState, CSSProperties, useCallback } from "react";
 import { Person, makeData } from "./makeData";
 import classNames from "classnames";
 
@@ -108,6 +110,21 @@ export function MyTable(_props: MyTableProps) {
 
     const [grouping, setGrouping] = useState<GroupingState>([]);
     const [rowSelection, setRowSelection] = useState({});
+    const onRowSelectionChange = useCallback(
+        (e: Updater<RowSelectionState>) => {
+            setRowSelection(old => {
+                const newData = typeof e === "function" ? e(old) : e;
+
+                Object.keys(newData).forEach(key => {
+                    if (data[+key].age <= 16) {
+                        delete newData[key];
+                    }
+                });
+                return newData;
+            });
+        },
+        [data]
+    );
 
     const table = useReactTable({
         data,
@@ -118,7 +135,7 @@ export function MyTable(_props: MyTableProps) {
         },
         onGroupingChange: setGrouping,
         enableMultiRowSelection: false,
-        onRowSelectionChange: setRowSelection,
+        onRowSelectionChange,
         getExpandedRowModel: getExpandedRowModel(),
         getGroupedRowModel: getGroupedRowModel(),
         getCoreRowModel: getCoreRowModel(),
