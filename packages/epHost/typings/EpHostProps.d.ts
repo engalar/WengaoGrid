@@ -4,13 +4,19 @@
  * @author Mendix Widgets Framework Team
  */
 import { CSSProperties } from "react";
+import { ActionValue, ListValue, ListAttributeValue, SelectionSingleValue, SelectionMultiValue } from "mendix";
+import { Big } from "big.js";
 
 export interface EpHostContainerProps {
     name: string;
     class: string;
     style?: CSSProperties;
     tabIndex?: number;
-    sampleText: string;
+    data: ListValue;
+    myAttribute: ListAttributeValue<string>;
+    myCredit: ListAttributeValue<Big>;
+    onSelectionChange?: ActionValue;
+    selection?: SelectionSingleValue | SelectionMultiValue;
 }
 
 export interface EpHostPreviewProps {
@@ -22,5 +28,9 @@ export interface EpHostPreviewProps {
     style: string;
     styleObject?: CSSProperties;
     readOnly: boolean;
-    sampleText: string;
+    data: {} | { caption: string } | { type: string } | null;
+    myAttribute: string;
+    myCredit: string;
+    onSelectionChange: {} | null;
+    selection: "None" | "Single" | "Multi";
 }

@@ -1,16 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<widget id="wengao.ephost.EpHost" pluginWidget="true" needsEntityContext="true" offlineCapable="true"
-        supportedPlatform="Web"
-        xmlns="http://www.mendix.com/widget/1.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.mendix.com/widget/1.0/ ../node_modules/mendix/custom_widget.xsd">
+<widget id="wengao.ephost.EpHost" pluginWidget="true" needsEntityContext="true" offlineCapable="true" supportedPlatform="Web"
+    xmlns="http://www.mendix.com/widget/1.0/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mendix.com/widget/1.0/ ../node_modules/mendix/custom_widget.xsd">
     <name>Ep Host</name>
     <description>My widget description</description>
     <icon/>
     <properties>
         <propertyGroup caption="General">
-            <property key="sampleText" type="string" required="false">
-                <caption>Default value</caption>
-                <description>Sample text input</description>
+            <property key="data" type="datasource" isList="true" required="true">
+                <caption>Data source</caption>
+                <description />
+            </property>
+            <property key="myAttribute" type="attribute" dataSource="data">
+                <caption>My attribute</caption>
+                <description>My attribute description</description>
+                <attributeTypes>
+                    <attributeType name="String"/>
+                </attributeTypes>
+            </property>
+            <property key="myCredit" type="attribute" dataSource="data">
+                <caption>My credit</caption>
+                <description>My credit description</description>
+                <attributeTypes>
+                    <attributeType name="Integer"/>
+                </attributeTypes>
+            </property>
+            <property key="onSelectionChange" type="action">
+                <caption>On selection change</caption>
+                <description>This action will be triggered when the selection changes.</description>
+            </property>
+            <property key="selection" type="selection" dataSource="data">
+                <caption>Selection</caption>
+                <description />
+                <selectionTypes>
+                    <selectionType name="None" />
+                    <selectionType name="Single" />
+                    <selectionType name="Multi" />
+                </selectionTypes>
             </property>
         </propertyGroup>
     </properties>
