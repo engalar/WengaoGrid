@@ -1,12 +1,22 @@
 import { ReactElement, createElement, useState, useMemo, useEffect, useCallback } from "react";
-import { HelloWorldSample } from "./components/HelloWorldSample";
 
 import { EpHostContainerProps } from "../typings/EpHostProps";
 
 import "./ui/EpHost.css";
 import classNames from "classnames";
 
-export function EpHost({ data, myAttribute, myCredit, selection, onSelectionChange, class: clazz, style }: EpHostContainerProps): ReactElement {
+export function EpHost({ data, name, myAttribute, myCredit, selection, onSelectionChange, class: clazz, style }: EpHostContainerProps): ReactElement {
+    useEffect(() => {
+        // @ts-ignore
+        EpHost.__ep[name] = { selection: [] };
+        console.log("EpHost.__ep", EpHost.__ep);
+        // emit event to window
+        window.dispatchEvent(new CustomEvent("__ep:" + name, { detail: EpHost.__ep[name] }));
+
+        return () => {
+            delete EpHost.__ep[name];
+        };
+    }, []);
     const [isEmpty, setEmpty] = useState(true);
     const myData = useMemo(() => {
         if (data.status === "available") {
@@ -20,12 +30,16 @@ export function EpHost({ data, myAttribute, myCredit, selection, onSelectionChan
     }, [data, selection]);
     useEffect(() => setEmpty(myData.length === 0), [myData]);
     const onClick = useCallback((index: number) => {
+        // @ts-ignore
+        const selectionPlugins = EpHost.__ep[name].selection
         if (selection && selection.type == 'Single') {
             if (selection.selection === data.items?.[index]) {
                 selection.setSelection(undefined);
             }
             else {
-                selection?.setSelection(data.items?.[index]);
+                const row = myData[index];
+                if (row && selectionPlugins.every((plugin: any) => plugin(row, row.value, row.credit)))
+                    selection?.setSelection(data.items?.[index]);
             }
         } else if (selection && selection.type == 'Multi') {
             if (selection.selection.includes(data.items![index])) {
@@ -34,7 +48,7 @@ export function EpHost({ data, myAttribute, myCredit, selection, onSelectionChan
                 selection.setSelection([...selection.selection, data.items![index]]);
             }
         }
-    }, [selection, data]);
+    }, [selection, data, myData]);
     return <div className={classNames("card", clazz)} style={style}>
         <div className="mx-listview">
             <ul>
@@ -48,4 +62,7 @@ export function EpHost({ data, myAttribute, myCredit, selection, onSelectionChan
             }
         }}>Show Selection</div>
     </div>;
+}
+
+EpHost.__ep = {
 }
