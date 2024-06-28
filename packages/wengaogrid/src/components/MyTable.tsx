@@ -14,6 +14,7 @@ import {
 import { createElement, useMemo, useState, CSSProperties } from "react";
 import { Person, makeData } from "./makeData";
 import classNames from "classnames";
+import { getRangeToNearestSelectedId } from "./util";
 
 export interface MyTableProps {
     className?: string;
@@ -33,12 +34,12 @@ export function getMergeHeaderGroups(headerGroups: Array<HeaderGroup<Person>>): 
                 columnsIds.add(header.column.id);
                 return header.isPlaceholder
                     ? {
-                          ...header,
-                          // If the cell is placeholder(empty), then there will be no subgroup below it,
-                          // and this means that you can merge it with all lower cells in the column header
-                          isPlaceholder: false,
-                          rowSpan: fullDepth - depth
-                      }
+                        ...header,
+                        // If the cell is placeholder(empty), then there will be no subgroup below it,
+                        // and this means that you can merge it with all lower cells in the column header
+                        isPlaceholder: false,
+                        rowSpan: fullDepth - depth
+                    }
                     : { ...header, rowSpan: 1 };
             })
     }));
@@ -117,7 +118,7 @@ export function MyTable(_props: MyTableProps) {
             rowSelection
         },
         onGroupingChange: setGrouping,
-        enableMultiRowSelection: false,
+        enableMultiRowSelection: true,
         onRowSelectionChange: setRowSelection,
         getExpandedRowModel: getExpandedRowModel(),
         getGroupedRowModel: getGroupedRowModel(),
@@ -168,7 +169,19 @@ export function MyTable(_props: MyTableProps) {
                             <tr
                                 key={row.id}
                                 className={classNames({ selected: row.getIsSelected() })}
-                                onClick={e => row.getToggleSelectedHandler()(e)}
+                                onClick={e => {
+                                    if (!e.ctrlKey) {
+                                        setRowSelection({});
+                                    }
+                                    if (e.shiftKey) {
+                                        const selectedIds = Object.keys(rowSelection).map(e => +e);
+                                        const currentId = +row.id;
+                                        const newSelectedIds = getRangeToNearestSelectedId(selectedIds, currentId);
+                                        setRowSelection(newSelectedIds.reduce((acc, id) => ({ ...acc, [id]: true }), {}));
+                                    } else {
+                                        row.getToggleSelectedHandler()(e);
+                                    }
+                                }}
                             >
                                 {row.getVisibleCells().map(cell => {
                                     return (
@@ -178,10 +191,10 @@ export function MyTable(_props: MyTableProps) {
                                                 background: cell.getIsGrouped()
                                                     ? "#0aff0082"
                                                     : cell.getIsAggregated()
-                                                    ? "#ffa50078"
-                                                    : cell.getIsPlaceholder()
-                                                    ? "#ff000042"
-                                                    : "white"
+                                                        ? "#ffa50078"
+                                                        : cell.getIsPlaceholder()
+                                                            ? "#ff000042"
+                                                            : "white"
                                             }}
                                         >
                                             {cell.getIsGrouped() ? (
