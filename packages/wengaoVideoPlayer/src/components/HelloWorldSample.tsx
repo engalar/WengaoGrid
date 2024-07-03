@@ -85,9 +85,10 @@ export function HelloWorldSample({ }: HelloWorldSampleProps): ReactElement {
             ] */
         });
 
+        // https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/timeupdate_event
         const events: DPlayerEvents[] = [
             'abort', 'canplay', 'canplaythrough', 'durationchange', 'emptied', 'ended', 'error',
-            'loadeddata', 'loadedmetadata', 'loadstart', 'mozaudioavailable', 'pause', 'play',
+            'loadeddata', 'loadedmetadata', 'loadstart', 'mozaudioavailable', 'pause', 'play', 'timeupdate',
             'playing', 'ratechange', 'seeked', 'seeking', 'stalled',
             'volumechange', 'waiting',
             'screenshot',
