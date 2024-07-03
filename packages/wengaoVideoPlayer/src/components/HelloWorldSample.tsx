@@ -1,5 +1,6 @@
 import { ReactElement, createElement, useEffect, useRef } from "react";
-import DPlayer from 'dplayer';
+import DPlayer from "dplayer";
+import { DPlayerEvents } from "typings/dplayer";
 
 export interface HelloWorldSampleProps {
     sampleText?: string;
@@ -7,6 +8,7 @@ export interface HelloWorldSampleProps {
 
 export function HelloWorldSample({ }: HelloWorldSampleProps): ReactElement {
     const playerRef = useRef(null);
+    const evtRef = useRef<HTMLDivElement>(null);
     useEffect(() => {
         const dp = new DPlayer({
             container: playerRef.current,
@@ -65,9 +67,40 @@ export function HelloWorldSample({ }: HelloWorldSampleProps): ReactElement {
                 }
             ]
         });
+
+        const events: DPlayerEvents[] = [
+            'abort', 'canplay', 'canplaythrough', 'durationchange', 'emptied', 'ended', 'error',
+            'loadeddata', 'loadedmetadata', 'loadstart', 'mozaudioavailable', 'pause', 'play',
+            'playing', 'ratechange', 'seeked', 'seeking', 'stalled',
+            'volumechange', 'waiting',
+            'screenshot',
+            'thumbnails_show', 'thumbnails_hide',
+            'danmaku_show', 'danmaku_hide', 'danmaku_clear',
+            'danmaku_loaded', 'danmaku_send', 'danmaku_opacity',
+            'contextmenu_show', 'contextmenu_hide',
+            'notice_show', 'notice_hide',
+            'quality_start', 'quality_end',
+            'destroy',
+            'resize',
+            'fullscreen', 'fullscreen_cancel', 'webfullscreen', 'webfullscreen_cancel',
+            'subtitle_show', 'subtitle_hide', 'subtitle_change'
+        ];
+        const eventsEle = evtRef.current!;
+        let count = 0;
+        for (let i = 0; i < events.length; i++) {
+            dp.on(events[i], (info: any) => {
+                count++;
+                eventsEle.innerHTML += `<p>Event ${count}: ${events[i]} ${info ? `Data: <span>${JSON.stringify(info)}</span>` : ''}</p>`;
+                eventsEle.scrollTop = eventsEle.scrollHeight;
+            });
+        }
+
         return () => {
             dp.destroy();
         };
     }, []);
-    return <div ref={playerRef} className="widget-hello-world"></div>;
+    return <div className="widget-hello-world">
+        <div ref={playerRef}></div>
+        <div ref={evtRef} style={{ maxHeight: '300px', overflowY: 'scroll' }}></div>
+    </div>;
 }

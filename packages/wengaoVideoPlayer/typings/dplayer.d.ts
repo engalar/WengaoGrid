@@ -1,3 +1,51 @@
+export type DPlayerEvents =
+    | "abort"
+    | "canplay"
+    | "canplaythrough"
+    | "durationchange"
+    | "emptied"
+    | "ended"
+    | "error"
+    | "loadeddata"
+    | "loadedmetadata"
+    | "loadstart"
+    | "mozaudioavailable"
+    | "pause"
+    | "play"
+    | "playing"
+    | "progress"
+    | "ratechange"
+    | "seeked"
+    | "seeking"
+    | "stalled"
+    | "suspend"
+    | "timeupdate"
+    | "volumechange"
+    | "waiting"
+    | "screenshot"
+    | "thumbnails_show"
+    | "thumbnails_hide"
+    | "danmaku_show"
+    | "danmaku_hide"
+    | "danmaku_clear"
+    | "danmaku_loaded"
+    | "danmaku_send"
+    | "danmaku_opacity"
+    | "contextmenu_show"
+    | "contextmenu_hide"
+    | "notice_show"
+    | "notice_hide"
+    | "quality_start"
+    | "quality_end"
+    | "destroy"
+    | "resize"
+    | "fullscreen"
+    | "fullscreen_cancel"
+    | "webfullscreen"
+    | "webfullscreen_cancel"
+    | "subtitle_show"
+    | "subtitle_hide"
+    | "subtitle_change";
 declare module "dplayer" {
     export as namespace DPlayer;
 
@@ -7,54 +55,6 @@ declare module "dplayer" {
     export type SubTitleType = "webvtt" | "ass";
     export type DirectionType = "top" | "right" | "bottom";
     export type FullScreenType = "web" | "browser";
-
-    export enum DPlayerEvents {
-        abort = "abort",
-        canplay = "canplay",
-        canplaythrough = "canplaythrough",
-        durationchange = "durationchange",
-        emptied = "emptied",
-        ended = "ended",
-        error = "error",
-        loadeddata = "loadeddata",
-        loadedmetadata = "loadedmetadata",
-        loadstart = "loadstart",
-        mozaudioavailable = "mozaudioavailable",
-        pause = "pause",
-        play = "play",
-        playing = "playing",
-        progress = "progress",
-        ratechange = "ratechange",
-        seeked = "seeked",
-        seeking = "seeking",
-        stalled = "stalled",
-        suspend = "suspend",
-        timeupdate = "timeupdate",
-        volumechange = "volumechange",
-        waiting = "waiting",
-        screenshot = "screenshot",
-        thumbnails_show = "thumbnails_show",
-        thumbnails_hide = "thumbnails_hide",
-        danmaku_show = "danmaku_show",
-        danmaku_hide = "danmaku_hide",
-        danmaku_clear = "danmaku_clear",
-        danmaku_loaded = "danmaku_loaded",
-        danmaku_send = "danmaku_send",
-        danmaku_opacity = "danmaku_opacity",
-        contextmenu_show = "contextmenu_show",
-        contextmenu_hide = "contextmenu_hide",
-        notice_show = "notice_show",
-        notice_hide = "notice_hide",
-        quality_start = "quality_start",
-        quality_end = "quality_end",
-        destroy = "destroy",
-        resize = "resize",
-        fullscreen = "fullscreen",
-        fullscreen_cancel = "fullscreen_cancel",
-        subtitle_show = "subtitle_show",
-        subtitle_hide = "subtitle_hide",
-        subtitle_change = "subtitle_change"
-    }
 
     export interface DPlayerOptions {
         [key: string]: any;
@@ -181,7 +181,7 @@ declare module "dplayer" {
 
         toggle(): void;
 
-        on(event: DPlayerEvents, handler: () => void): void;
+        on(event: DPlayerEvents, handler: (e: any) => void): void;
 
         switchVideo(video: DPlayerVideo, danmaku: DPlayerDanmaku): void;
 
