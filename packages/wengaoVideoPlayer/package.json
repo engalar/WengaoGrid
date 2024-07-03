@@ -16,6 +16,8 @@
   },
   "packagePath": "wengao",
   "scripts": {
+    "vite:start": "vite --config node_modules/@engalar/vite-plugin-mendix/config/vite.config.js",
+    "vite:build": "set __DEV_VITEJS__=true && npm run build",
     "start": "pluggable-widgets-tools start:server",
     "dev": "pluggable-widgets-tools start:web",
     "build": "pluggable-widgets-tools build:web",
@@ -25,7 +27,10 @@
     "release": "pluggable-widgets-tools release:web"
   },
   "devDependencies": {
+    "@engalar/vite-plugin-mendix": "^1.4.0",
     "@mendix/pluggable-widgets-tools": "^10.7.1",
+    "vite": "^5.3.1",
+    "vitest": "^1.6.0",
     "@types/big.js": "^6.0.2"
   },
   "dependencies": {
