@@ -4,13 +4,15 @@
  * @author Mendix Widgets Framework Team
  */
 import { CSSProperties } from "react";
+import { EditableValue } from "mendix";
+import { Big } from "big.js";
 
 export interface WengaoVideoPlayerContainerProps {
     name: string;
     class: string;
     style?: CSSProperties;
     tabIndex?: number;
-    sampleText: string;
+    playProgress?: EditableValue<Big>;
 }
 
 export interface WengaoVideoPlayerPreviewProps {
@@ -22,5 +24,5 @@ export interface WengaoVideoPlayerPreviewProps {
     style: string;
     styleObject?: CSSProperties;
     readOnly: boolean;
-    sampleText: string;
+    playProgress: string;
 }

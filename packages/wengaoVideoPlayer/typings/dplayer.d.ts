@@ -1,51 +1,3 @@
-export type DPlayerEvents =
-    | "abort"
-    | "canplay"
-    | "canplaythrough"
-    | "durationchange"
-    | "emptied"
-    | "ended"
-    | "error"
-    | "loadeddata"
-    | "loadedmetadata"
-    | "loadstart"
-    | "mozaudioavailable"
-    | "pause"
-    | "play"
-    | "playing"
-    | "progress"
-    | "ratechange"
-    | "seeked"
-    | "seeking"
-    | "stalled"
-    | "suspend"
-    | "timeupdate"
-    | "volumechange"
-    | "waiting"
-    | "screenshot"
-    | "thumbnails_show"
-    | "thumbnails_hide"
-    | "danmaku_show"
-    | "danmaku_hide"
-    | "danmaku_clear"
-    | "danmaku_loaded"
-    | "danmaku_send"
-    | "danmaku_opacity"
-    | "contextmenu_show"
-    | "contextmenu_hide"
-    | "notice_show"
-    | "notice_hide"
-    | "quality_start"
-    | "quality_end"
-    | "destroy"
-    | "resize"
-    | "fullscreen"
-    | "fullscreen_cancel"
-    | "webfullscreen"
-    | "webfullscreen_cancel"
-    | "subtitle_show"
-    | "subtitle_hide"
-    | "subtitle_change";
 declare module "dplayer" {
     export as namespace DPlayer;
 
@@ -103,7 +55,7 @@ declare module "dplayer" {
     }
 
     export interface DPlayerVideo {
-        url: string;
+        url?: string;
         pic?: string | undefined;
         thumbnails?: string | undefined;
         type?: VideoType | string | undefined;
@@ -196,3 +148,52 @@ declare module "dplayer" {
         volume(percentage: number, nostorage: boolean, nonotice: boolean): void;
     }
 }
+
+type DPlayerEvents =
+    | "abort"
+    | "canplay"
+    | "canplaythrough"
+    | "durationchange"
+    | "emptied"
+    | "ended"
+    | "error"
+    | "loadeddata"
+    | "loadedmetadata"
+    | "loadstart"
+    | "mozaudioavailable"
+    | "pause"
+    | "play"
+    | "playing"
+    | "progress"
+    | "ratechange"
+    | "seeked"
+    | "seeking"
+    | "stalled"
+    | "suspend"
+    | "timeupdate"
+    | "volumechange"
+    | "waiting"
+    | "screenshot"
+    | "thumbnails_show"
+    | "thumbnails_hide"
+    | "danmaku_show"
+    | "danmaku_hide"
+    | "danmaku_clear"
+    | "danmaku_loaded"
+    | "danmaku_send"
+    | "danmaku_opacity"
+    | "contextmenu_show"
+    | "contextmenu_hide"
+    | "notice_show"
+    | "notice_hide"
+    | "quality_start"
+    | "quality_end"
+    | "destroy"
+    | "resize"
+    | "fullscreen"
+    | "fullscreen_cancel"
+    | "webfullscreen"
+    | "webfullscreen_cancel"
+    | "subtitle_show"
+    | "subtitle_hide"
+    | "subtitle_change";

@@ -1,12 +1,11 @@
 import { ReactElement, createElement, useEffect, useRef } from "react";
 import DPlayer from "dplayer";
-import { DPlayerEvents } from "typings/dplayer";
 
 export interface HelloWorldSampleProps {
-    sampleText?: string;
+    progress?: (e: number) => void;
 }
 
-export function HelloWorldSample({ }: HelloWorldSampleProps): ReactElement {
+export function HelloWorldSample({ progress }: HelloWorldSampleProps): ReactElement {
     const playerRef = useRef(null);
     const evtRef = useRef<HTMLDivElement>(null);
     useEffect(() => {
@@ -110,6 +109,18 @@ export function HelloWorldSample({ }: HelloWorldSampleProps): ReactElement {
                 count++;
                 eventsEle.innerHTML += `<p>Event ${count}: ${events[i]} ${info ? `Data: <span>${JSON.stringify(info)}</span>` : ''}</p>`;
                 eventsEle.scrollTop = eventsEle.scrollHeight;
+
+                if (events[i] === 'timeupdate') {
+                    const video = dp.video;
+                    var hours = Math.floor(video.currentTime / (60 * 60));
+                    var minutes = Math.floor(video.currentTime / 60);
+                    var seconds = Math.floor(video.currentTime % 60);
+                    var timeDisplay = (hours > 0 ? hours + ":" : "") + (minutes < 10 ? "0" : "") + minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+                    eventsEle.innerHTML += `<p>Current time: ${timeDisplay}</p>`;
+                    // all time transform to seconds
+                    const totalSeconds = hours * 3600 + minutes * 60 + seconds;
+                    progress && progress(totalSeconds);
+                }
             });
         }
 
