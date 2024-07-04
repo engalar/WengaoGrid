@@ -34,6 +34,7 @@
     "vitest": "^1.6.0"
   },
   "dependencies": {
+    "ahooks": "^3.8.0",
     "classnames": "^2.2.6",
     "dplayer": "^1.27.1"
   },

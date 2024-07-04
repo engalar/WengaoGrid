@@ -131,7 +131,8 @@ export function HelloWorldSample({ onProgress, progress }: HelloWorldSampleProps
     }, []);
     useEffect(() => {
         if (dpRef.current) {
-            dpRef.current.seek(progress);
+            dpRef.current.seek(Math.abs(progress));
+            console.log("set progress |", Math.abs(progress));
             dpRef.current.play();
         }
     }, [progress]);

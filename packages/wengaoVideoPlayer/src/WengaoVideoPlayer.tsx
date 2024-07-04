@@ -6,28 +6,33 @@ import { WengaoVideoPlayerContainerProps } from "../typings/WengaoVideoPlayerPro
 
 import "./ui/WengaoVideoPlayer.css";
 import Big from "big.js";
+import { usePrevious } from "ahooks";
 
 export function WengaoVideoPlayer({ playProgress }: WengaoVideoPlayerContainerProps): ReactElement {
-    const [progress, setProgress] = useState<number>(0);
+    const [defaultProgress, setDefaultProgress] = useState<number>(0);
+    const prevDefaultProgress = usePrevious(defaultProgress);
+    const [prevProgress, setPrevProgress] = useState<number>(0);
+
 
     const handlePlayProgress = useCallback((v: number) => {
         if (playProgress && playProgress.status === ValueStatus.Available && !playProgress.readOnly) {
-            // only update when requestAnimationFrame
-            // requestAnimationFrame(() => {
-            // });
             playProgress.setValue(Big(v));
+            setPrevProgress(v);
+            console.log("set progress <-", v);
         }
     }, [playProgress]);
 
+    // replay
     useEffect(() => {
         if (playProgress && playProgress.status === ValueStatus.Available && playProgress.value) {
-            const v = playProgress.value.toNumber();
-            if (v < 0) {
-                setProgress(-v);
-                playProgress.setValue(Big(-v));
+            const pp = playProgress.value.toNumber();
+
+            if ((prevDefaultProgress === undefined) || (pp < prevProgress) || (pp > prevProgress + 1)) {
+                setDefaultProgress(pp == prevDefaultProgress ? -prevDefaultProgress : pp);
+                console.log("set progress ->", pp, prevDefaultProgress, prevProgress);// 220 1 235
             }
         }
-    }, [playProgress]);
+    }, [playProgress, prevDefaultProgress, prevProgress]);
 
-    return <HelloWorldSample progress={progress} onProgress={handlePlayProgress} />;
+    return <HelloWorldSample progress={defaultProgress} onProgress={handlePlayProgress} />;
 }
