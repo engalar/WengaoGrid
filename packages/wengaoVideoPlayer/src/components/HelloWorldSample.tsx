@@ -2,12 +2,18 @@ import { ReactElement, createElement, useEffect, useRef } from "react";
 import DPlayer from "dplayer";
 
 export interface HelloWorldSampleProps {
-    progress?: (e: number) => void;
+    onProgress?: (e: number) => void;
+    progress: number;
 }
 
-export function HelloWorldSample({ progress }: HelloWorldSampleProps): ReactElement {
+export function HelloWorldSample({ onProgress, progress }: HelloWorldSampleProps): ReactElement {
     const playerRef = useRef(null);
-    const evtRef = useRef<HTMLDivElement>(null);
+    const dpRef = useRef<DPlayer | null>(null);
+    const cbRef = useRef(onProgress);
+    useEffect(() => {
+        cbRef.current = onProgress;
+    }, [onProgress]);
+
     useEffect(() => {
         const dp = new DPlayer({
             container: playerRef.current,
@@ -20,10 +26,10 @@ export function HelloWorldSample({ progress }: HelloWorldSampleProps): ReactElem
             chromecast: true,
             hotkey: true,
             logo: 'https://i.loli.net/2019/06/06/5cf8c5d94521136430.png',
-            volume: 0.2,
+            volume: 1,
             mutex: true,
             lang: 'zh-cn',
-            highlight: [{ text: 'highlight text', time: 600 }, { text: 'highlight text2', time: 1200 }],
+            highlight: [{ text: 'highlight text', time: 20 }, { text: 'highlight text2', time: 60 }],
             video: {
                 quality: [
                     {
@@ -83,6 +89,7 @@ export function HelloWorldSample({ progress }: HelloWorldSampleProps): ReactElem
                 }
             ] */
         });
+        dpRef.current = dp;
 
         // https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/timeupdate_event
         const events: DPlayerEvents[] = [
@@ -102,24 +109,18 @@ export function HelloWorldSample({ progress }: HelloWorldSampleProps): ReactElem
             'fullscreen', 'fullscreen_cancel', 'webfullscreen', 'webfullscreen_cancel',
             'subtitle_show', 'subtitle_hide', 'subtitle_change'
         ];
-        const eventsEle = evtRef.current!;
-        let count = 0;
         for (let i = 0; i < events.length; i++) {
-            dp.on(events[i], (info: any) => {
-                count++;
-                eventsEle.innerHTML += `<p>Event ${count}: ${events[i]} ${info ? `Data: <span>${JSON.stringify(info)}</span>` : ''}</p>`;
-                eventsEle.scrollTop = eventsEle.scrollHeight;
-
+            dp.on(events[i], (_info: any) => {
                 if (events[i] === 'timeupdate') {
                     const video = dp.video;
                     var hours = Math.floor(video.currentTime / (60 * 60));
                     var minutes = Math.floor(video.currentTime / 60);
                     var seconds = Math.floor(video.currentTime % 60);
-                    var timeDisplay = (hours > 0 ? hours + ":" : "") + (minutes < 10 ? "0" : "") + minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
-                    eventsEle.innerHTML += `<p>Current time: ${timeDisplay}</p>`;
+                    // var timeDisplay = (hours > 0 ? hours + ":" : "") + (minutes < 10 ? "0" : "") + minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+
                     // all time transform to seconds
                     const totalSeconds = hours * 3600 + minutes * 60 + seconds;
-                    progress && progress(totalSeconds);
+                    cbRef.current && cbRef.current(totalSeconds);
                 }
             });
         }
@@ -128,8 +129,13 @@ export function HelloWorldSample({ progress }: HelloWorldSampleProps): ReactElem
             dp.destroy();
         };
     }, []);
+    useEffect(() => {
+        if (dpRef.current) {
+            dpRef.current.seek(progress);
+            dpRef.current.play();
+        }
+    }, [progress]);
     return <div className="widget-hello-world">
         <div ref={playerRef}></div>
-        <div ref={evtRef} style={{ maxHeight: '300px', overflowY: 'scroll' }}></div>
     </div>;
 }
