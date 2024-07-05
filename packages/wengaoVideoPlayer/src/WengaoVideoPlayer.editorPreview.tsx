@@ -1,8 +1,8 @@
 import { ReactElement, createElement } from "react";
 import { HelloWorldSample } from "./components/HelloWorldSample";
-import { WengaoVideoPlayerPreviewProps } from "../typings/WengaoVideoPlayerProps";
+// import { WengaoVideoPlayerPreviewProps } from "../typings/WengaoVideoPlayerProps";
 
-export function preview({ }: WengaoVideoPlayerPreviewProps): ReactElement {
+export function preview(/* {}: WengaoVideoPlayerPreviewProps */): ReactElement {
     return <HelloWorldSample progress={0} />;
 }
 
