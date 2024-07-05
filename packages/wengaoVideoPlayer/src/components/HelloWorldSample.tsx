@@ -168,8 +168,11 @@ export function HelloWorldSample({ onProgress, progress, isPlaying }: HelloWorld
         if (dpRef.current) {
             const dp = dpRef.current;
             if (dp.video.paused && isPlaying) {
+                cbRef.current = onProgress;
                 dp.play();
             } else if (!dp.video.paused &&!isPlaying) {
+                // reset cb before pause
+                cbRef.current = undefined;
                 dp.pause();
                 return;
             }
