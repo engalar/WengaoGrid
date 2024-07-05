@@ -16,6 +16,7 @@
   },
   "packagePath": "wengao",
   "scripts": {
+    "vite": "vite",
     "vite:start": "vite --config node_modules/@engalar/vite-plugin-mendix/config/vite.config.js",
     "vite:build": "set __DEV_VITEJS__=true && npm run build",
     "start": "pluggable-widgets-tools start:server",
