@@ -4,9 +4,10 @@ import DPlayer from "dplayer";
 export interface HelloWorldSampleProps {
     onProgress?: (e: number) => void;
     progress: number;
+    isPlaying: boolean;
 }
 
-export function HelloWorldSample({ onProgress, progress }: HelloWorldSampleProps): ReactElement {
+export function HelloWorldSample({ onProgress, progress, isPlaying }: HelloWorldSampleProps): ReactElement {
     const playerRef = useRef(null);
     const dpRef = useRef<DPlayer | null>(null);
     const cbRef = useRef(onProgress);
@@ -166,6 +167,12 @@ export function HelloWorldSample({ onProgress, progress }: HelloWorldSampleProps
     useEffect(() => {
         if (dpRef.current) {
             const dp = dpRef.current;
+            if (dp.video.paused && isPlaying) {
+                dp.play();
+            } else if (!dp.video.paused &&!isPlaying) {
+                dp.pause();
+                return;
+            }
             if (dp.video.currentTime === Math.abs(progress)) {
                 return;
             }
@@ -175,7 +182,7 @@ export function HelloWorldSample({ onProgress, progress }: HelloWorldSampleProps
                 dp.play();
             }, 0);
         }
-    }, [progress]);
+    }, [progress, isPlaying]);
     return (
         <div className="widget-hello-world">
             <div ref={playerRef}></div>

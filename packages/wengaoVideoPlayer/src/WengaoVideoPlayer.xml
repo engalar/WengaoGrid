@@ -15,5 +15,35 @@
                 </attributeTypes>
             </property>
         </propertyGroup>
+        <propertyGroup caption="Quality">
+            <property key="videoUrl" type="attribute">
+                <caption>Video URL</caption>
+                <description>The URL of the video to be played.</description>
+                <attributeTypes>
+                    <attributeType name="String"></attributeType>
+                </attributeTypes>
+            </property>
+            <property key="qualities" type="object" isList="true" required="false">
+                <caption>Qualities</caption>
+                <description>The available qualities of the video.</description>
+                <properties>
+                    <propertyGroup caption="Quality">
+                        <property key="quality" type="string">
+                            <caption>Quality</caption>
+                            <description>The quality of the video.</description>
+                        </property>
+                        <property key="url" type="expression">
+                            <caption>URL</caption>
+                            <description>The URL of the video with the specified quality.</description>
+                            <returnType type="String" />
+                        </property>
+                        <property key="videoType" type="string" defaultValue="auto">
+                            <caption>Video type</caption>
+                            <description>The type of the video (e.g. hls, normal, auto, etc.).</description>
+                        </property>
+                    </propertyGroup>
+                </properties>
+            </property>
+        </propertyGroup>
     </properties>
 </widget>

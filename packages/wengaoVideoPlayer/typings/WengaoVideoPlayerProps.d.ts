@@ -4,8 +4,20 @@
  * @author Mendix Widgets Framework Team
  */
 import { CSSProperties } from "react";
-import { EditableValue } from "mendix";
+import { DynamicValue, EditableValue } from "mendix";
 import { Big } from "big.js";
+
+export interface QualitiesType {
+    quality: string;
+    url: DynamicValue<string>;
+    videoType: string;
+}
+
+export interface QualitiesPreviewType {
+    quality: string;
+    url: string;
+    videoType: string;
+}
 
 export interface WengaoVideoPlayerContainerProps {
     name: string;
@@ -13,6 +25,8 @@ export interface WengaoVideoPlayerContainerProps {
     style?: CSSProperties;
     tabIndex?: number;
     playProgress?: EditableValue<Big>;
+    videoUrl: EditableValue<string>;
+    qualities: QualitiesType[];
 }
 
 export interface WengaoVideoPlayerPreviewProps {
@@ -25,4 +39,6 @@ export interface WengaoVideoPlayerPreviewProps {
     styleObject?: CSSProperties;
     readOnly: boolean;
     playProgress: string;
+    videoUrl: string;
+    qualities: QualitiesPreviewType[];
 }

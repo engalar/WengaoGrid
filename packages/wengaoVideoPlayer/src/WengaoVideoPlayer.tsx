@@ -10,6 +10,7 @@ import Big from "big.js";
 export function WengaoVideoPlayer({ playProgress }: WengaoVideoPlayerContainerProps): ReactElement {
     const [defaultProgress, setDefaultProgress] = useState<number>(0);
     const [prevProgress, setPrevProgress] = useState<number>(0);
+    const [isPlaying, setIsPlaying] = useState<boolean>(false);
 
     const handlePlayProgress = useCallback(
         (v: number) => {
@@ -25,21 +26,26 @@ export function WengaoVideoPlayer({ playProgress }: WengaoVideoPlayerContainerPr
 
     // replay
     useEffect(() => {
-        if (playProgress && playProgress.status === ValueStatus.Available && playProgress.value) {
-            const pp = playProgress.value.toNumber();
+        if (playProgress && playProgress.status === ValueStatus.Available) {
+            if (playProgress.value !== undefined) {
+                setIsPlaying(true);
+                const pp = playProgress.value.toNumber();
 
-            if (hasSeeked) {
-                setHasSeeked(false);
-                return;
-            }
-            // first time or backward or forward more than 1 second
-            if (pp < prevProgress || pp > prevProgress) {
-                const newValue = pp === defaultProgress ? -defaultProgress : pp;
-                setDefaultProgress(newValue);
-                setHasSeeked(true);
+                if (hasSeeked) {
+                    setHasSeeked(false);
+                    return;
+                }
+                // first time or backward or forward more than 1 second
+                if (pp < prevProgress || pp > prevProgress) {
+                    const newValue = pp === defaultProgress ? -defaultProgress : pp;
+                    setDefaultProgress(newValue);
+                    setHasSeeked(true);
+                }
+            } else {
+                setIsPlaying(false);
             }
         }
     }, [playProgress, prevProgress, defaultProgress, hasSeeked]);
 
-    return <HelloWorldSample progress={defaultProgress} onProgress={handlePlayProgress} />;
+    return <HelloWorldSample isPlaying={isPlaying} progress={defaultProgress} onProgress={handlePlayProgress} />;
 }
