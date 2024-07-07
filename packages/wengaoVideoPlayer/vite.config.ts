@@ -75,15 +75,27 @@ function rewriteReactImports(): PluginOption {
                                 t.importSpecifier(t.identifier("reactExports"), t.identifier("reactExports"))
                             ];
                         } else if (path.node.source.value === "react/jsx-dev-runtime") {
-                            // 修改 react/jsx-dev-runtime 的导入
-                            path.replaceWith(
+                            // import { jsxRuntimeExports } from 'http://localhost:8080/dist/commons.js';
+                            // const { jsx: jsxDEV } = jsxRuntimeExports;
+                            path.replaceWithMultiple([
+                                t.importDeclaration(
+                                    [
+                                        t.importSpecifier(
+                                            t.identifier("jsxRuntimeExports"),
+                                            t.identifier("jsxRuntimeExports")
+                                        )
+                                    ],
+                                    t.stringLiteral("http://localhost:8080/dist/commons.js")
+                                ),
                                 t.variableDeclaration("const", [
                                     t.variableDeclarator(
-                                        t.identifier("jsxDEV"),
-                                        t.memberExpression(t.identifier("reactExports"), t.identifier("createElement"))
+                                        t.objectPattern([
+                                            t.objectProperty(t.identifier("jsx"), t.identifier("jsxDEV"))
+                                        ]),
+                                        t.identifier("jsxRuntimeExports")
                                     )
                                 ])
-                            );
+                            ]);
                         } else if (path.node.source.value === "big.js") {
                             path.replaceWith(
                                 t.importDeclaration(
