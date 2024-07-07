@@ -74,7 +74,7 @@ function rewriteReactImports(): PluginOption {
                             path.node.specifiers = [
                                 t.importSpecifier(t.identifier("reactExports"), t.identifier("reactExports"))
                             ];
-                        } else if (path.node.source.value === "react/jsx-dev-runtime") {
+                        /* } else if (path.node.source.value === "react/jsx-dev-runtime") {
                             // import { jsxRuntimeExports } from 'http://localhost:8080/dist/commons.js';
                             // const { jsx: jsxDEV } = jsxRuntimeExports;
                             path.replaceWithMultiple([
@@ -95,7 +95,7 @@ function rewriteReactImports(): PluginOption {
                                         t.identifier("jsxRuntimeExports")
                                     )
                                 ])
-                            ]);
+                            ]); */
                         } else if (path.node.source.value === "big.js") {
                             path.replaceWith(
                                 t.importDeclaration(
