@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { PluginOption, defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import Inspect from "vite-plugin-inspect";
 import { parse } from "@babel/parser";
@@ -6,11 +6,30 @@ import generate from "@babel/generator";
 import traverse from "@babel/traverse";
 import * as t from "@babel/types";
 
-// 自定义插件  https://astexplorer.net/#/KJ8AjD6maa
-function rewriteReactImports() {
+const commonExternalLibs = [
+    // "mendix" and internals under "mendix/"
+    /^mendix($|\/)/,
+
+    // "react"
+    /^react$/,
+
+    // "react/jsx-runtime"
+    /^react\/jsx-runtime$/,
+
+    // "react-dom"
+    /^react-dom$/
+];
+
+const webExternal = [...commonExternalLibs, /^big.js$/];
+
+// https://astexplorer.net/#/KJ8AjD6maa
+// https://babeljs.io/repl
+// https://www.typescriptlang.org/play
+function rewriteReactImports(): PluginOption {
+    let severUrl;
     return {
         name: "rewrite-react-imports",
-        enforce: "pre",
+        // enforce: "pre",
         transform(code, id) {
             if (id.endsWith(".js") || id.endsWith(".jsx") || id.endsWith(".ts") || id.endsWith(".tsx")) {
                 // 使用 Babel 解析器解析代码
@@ -60,13 +79,42 @@ function rewriteReactImports() {
                             path.replaceWith(
                                 t.variableDeclaration("const", [
                                     t.variableDeclarator(
-                                        t.objectPattern([
-                                            t.objectProperty(t.identifier("jsxDEV"), t.identifier("jsxDEV"))
-                                        ]),
+                                        t.identifier("jsxDEV"),
                                         t.memberExpression(t.identifier("reactExports"), t.identifier("createElement"))
                                     )
                                 ])
                             );
+                        } else if (path.node.source.value === "big.js") {
+                            path.replaceWith(
+                                t.importDeclaration(
+                                    [t.importSpecifier(t.identifier("Big"), t.identifier("Big"))],
+                                    t.stringLiteral("http://localhost:8080/dist/commons.js")
+                                )
+                            );
+                        } else if (path.node.source.value === "mendix") {
+                            if (path.node.specifiers.length === 1 && t.isImportSpecifier(path.node.specifiers[0])) {
+                                path.replaceWith(
+                                    t.variableDeclaration("const", [
+                                        t.variableDeclarator(
+                                            t.identifier("ValueStatus"),
+                                            t.objectExpression([
+                                                t.objectProperty(
+                                                    t.identifier("Available"),
+                                                    t.stringLiteral("available")
+                                                ),
+                                                t.objectProperty(
+                                                    t.identifier("Unavailable"),
+                                                    t.stringLiteral("unavailable")
+                                                ),
+                                                t.objectProperty(t.identifier("Loading"), t.stringLiteral("loading"))
+                                            ])
+                                        )
+                                    ])
+                                );
+                            }
+                        } else {
+                            // append severUrl to other imports
+                            // path.node.source.value = `${severUrl}/${path.node.source.value}`;
                         }
                     }
                 });
@@ -79,9 +127,18 @@ function rewriteReactImports() {
                 };
             }
             return null;
+        },
+        configureServer(server) {
+            server.httpServer?.once("listening", () => {
+                const address: any = server.httpServer?.address();
+                severUrl = `http://${address.family === "IPv6" ? `[${address.address}]` : address.address}:${
+                    address.port
+                }`;
+            });
         }
     };
 }
+
 export default defineConfig({
     plugins: [react(), Inspect(), rewriteReactImports()]
 });
