@@ -2,8 +2,8 @@ import { ReactElement, createElement } from "react";
 import { HelloWorldSample } from "./components/HelloWorldSample";
 import { WengaoFileUploadPreviewProps } from "../typings/WengaoFileUploadProps";
 
-export function preview({ sampleText }: WengaoFileUploadPreviewProps): ReactElement {
-    return <HelloWorldSample sampleText={sampleText} />;
+export function preview(props: WengaoFileUploadPreviewProps): ReactElement {
+    return <HelloWorldSample sampleText={props.class} />;
 }
 
 export function getPreviewCss(): string {
