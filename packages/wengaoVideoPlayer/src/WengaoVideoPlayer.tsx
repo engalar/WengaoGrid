@@ -1,4 +1,4 @@
-import { ReactElement, createElement, useCallback, useState, useEffect } from "react";
+import { ReactElement, useCallback, useState, useEffect } from "react";
 import { ValueStatus } from "mendix";
 import { HelloWorldSample } from "./components/HelloWorldSample";
 

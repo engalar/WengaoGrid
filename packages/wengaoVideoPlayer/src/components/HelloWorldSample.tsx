@@ -1,4 +1,4 @@
-import { ReactElement, createElement, useEffect, useRef } from "react";
+import { ReactElement, useEffect, useRef } from "react";
 import DPlayer from "dplayer";
 
 export interface HelloWorldSampleProps {
