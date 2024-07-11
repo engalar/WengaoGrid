@@ -1,6 +1,8 @@
-import { useEffect, useCallback, ReactElement, useMemo, createElement, useState } from "react";
+import { useEffect, useCallback, ReactElement, createElement, useState } from "react";
 import { ValueStatus } from "mendix";
 import { Button, message, Upload, UploadFile } from "antd";
+import { useDebounce } from "ahooks";
+
 import { WengaoFileUploadContainerProps } from "../typings/WengaoFileUploadProps";
 
 import "./ui/WengaoFileUpload.css";
@@ -50,6 +52,7 @@ export function WengaoFileUpload(props: WengaoFileUploadContainerProps): ReactEl
      * file upload source, including uploaded files and to upload files
      */
     const [pendingList, setPendingList] = useState<UploadFile[]>([]);
+    const debouncedPendingList = useDebounce(pendingList, { wait: 500 });
     const [readyTaskFileList, setReadyTaskFileList] = useState<UploadFile[]>([]);
     const [uploading, setUploading] = useState(false);
 
@@ -72,39 +75,38 @@ export function WengaoFileUpload(props: WengaoFileUploadContainerProps): ReactEl
     useEffect(() => {
         const uploadedFileList = syncList.filter(file => file.name);
         const placeholderFileList = syncList.filter(file => !file.name);
-        console.log('fileupload[sync][raw, uploaded, placeholder]', syncList, uploadedFileList, placeholderFileList);
+        console.log("fileupload[sync][raw, uploaded, placeholder]", syncList, uploadedFileList, placeholderFileList);
 
-        if (placeholderFileList.length === pendingList.length && pendingList.length > 0) {
+        if (placeholderFileList.length === debouncedPendingList.length && debouncedPendingList.length > 0) {
             // 03 all pending task ready(get same count placeholder)
             // iterator over pendingCount
-            for (let i = 0; i < pendingList.length; i++) {
+            for (let i = 0; i < debouncedPendingList.length; i++) {
                 const placeHolder = placeholderFileList[i];
-                pendingList[i].url = placeHolder.url;
+                debouncedPendingList[i].url = placeHolder.url;
                 // assert placeHolder.url is not undefined
                 if (!placeHolder.url) {
                     throw new Error("placeHolder.url is undefined");
                 }
                 const uid = placeHolder.url.split("?")[1].split("=")[1];
-                pendingList[i].uid = uid;
+                debouncedPendingList[i].uid = uid;
             }
             setReqCount(0);
-            setReadyTaskFileList(pendingList);
+            setReadyTaskFileList(debouncedPendingList);
             setPendingList([]);
-            console.log('fileupload[task ready][taskFileList]', pendingList);
+            console.log("fileupload[task ready][taskFileList]", debouncedPendingList);
         }
         // file.url is the unique identifier of the file, if not exist, need upload
-    }, [pendingList, syncList]);
+    }, [debouncedPendingList, syncList]);
 
     useEffect(() => {
         // 01 task pending
-        if (pendingList.length > reqCount && props.onNewFile && props.onNewFile.canExecute) {
+        if (debouncedPendingList.length > reqCount && props.onNewFile && props.onNewFile.canExecute) {
             // 02 req placeHolder
             props.onNewFile.execute();
             setReqCount(reqCount + 1);
-            console.log('fileupload[new task req][pendingCount]', reqCount + 1);
+            console.log("fileupload[new task req][pendingCount]", reqCount + 1);
         }
-    }, [pendingList, reqCount, props.onNewFile]);
-
+    }, [debouncedPendingList, reqCount, props.onNewFile]);
 
     return (
         <div className={props.class}>
@@ -119,7 +121,8 @@ export function WengaoFileUpload(props: WengaoFileUploadContainerProps): ReactEl
                     if (!isPNG) {
                         message.error(`${file.name} is not a png file`);
                     } else {
-                        console.log('fileupload[new task]', pendingList, file);
+                        console.log("fileupload[new task]", pendingList, file);
+                        // need delay 500ms to collect file into pendingList
                         setPendingList([...pendingList, file]);
                     }
                     // return isPNG || Upload.LIST_IGNORE;

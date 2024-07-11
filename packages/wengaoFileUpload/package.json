@@ -36,7 +36,8 @@
   },
   "dependencies": {
     "classnames": "^2.2.6",
-    "antd": "5.19.1"
+    "antd": "5.19.1",
+    "ahooks": "^3.8.0"
   },
   "resolutions": {
     "react": "18.2.0",
