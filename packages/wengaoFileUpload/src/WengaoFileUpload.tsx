@@ -25,52 +25,92 @@ async function saveDocument(fileBlob: File, guid: string, fileName: string) {
 }
 
 export function WengaoFileUpload(props: WengaoFileUploadContainerProps): ReactElement {
-    const datasourceFileList = useMemo<UploadFile[]>(() => {
+    const [syncList, setSyncList] = useState<UploadFile[]>([]);
+
+    /**
+     * file upload state, including uploaded files and upload placeholder
+     */
+    useEffect(() => {
         if (
             props.isMultiple &&
             props.datasource &&
             props.datasource.status === ValueStatus.Available &&
             props.datasource.items
         ) {
-            return props.datasource.items.map(item => {
+            const result = props.datasource.items.map(item => {
                 // file?guid=1234567890
                 const url = props.uploadUrlDatasource!.get(item).value!;
                 const uid = url.split("?")[1].split("=")[1];
                 return { url, uid, name: props.fileNameDatasource!.get(item).value! };
             });
-        } else {
-            return [];
+            setSyncList(result);
         }
     }, [props.datasource]);
-    const [fileList, setFileList] = useState<UploadFile[]>(datasourceFileList);
+    /**
+     * file upload source, including uploaded files and to upload files
+     */
+    const [pendingList, setPendingList] = useState<UploadFile[]>([]);
+    const [readyTaskFileList, setReadyTaskFileList] = useState<UploadFile[]>([]);
     const [uploading, setUploading] = useState(false);
 
     const handleUpload = useCallback(async () => {
         setUploading(true);
         // save documents one by one, asynchronously promise.all
-        fileList.reduce(async (prevPromise, file) => {
+        await readyTaskFileList.reduce(async (prevPromise, file) => {
             await prevPromise;
             // @ts-ignore
             await saveDocument(file, file.uid, file.name || file.fileName);
         }, Promise.resolve());
         setUploading(false);
-    }, [fileList]);
+        setReadyTaskFileList([]);
+        props.datasource?.reload();
+    }, [readyTaskFileList]);
+
+    // pending task request count
+    const [reqCount, setReqCount] = useState(0);
 
     useEffect(() => {
-        const needNew = fileList.some(file => !file.uid);
-        if (needNew && props.onNewFile && props.onNewFile.canExecute) {
-            props.onNewFile.execute();
-        }
-        console.log(fileList, datasourceFileList);
+        const uploadedFileList = syncList.filter(file => file.name);
+        const placeholderFileList = syncList.filter(file => !file.name);
+        console.log('fileupload[sync][raw, uploaded, placeholder]', syncList, uploadedFileList, placeholderFileList);
 
+        if (placeholderFileList.length === pendingList.length && pendingList.length > 0) {
+            // 03 all pending task ready(get same count placeholder)
+            // iterator over pendingCount
+            for (let i = 0; i < pendingList.length; i++) {
+                const placeHolder = placeholderFileList[i];
+                pendingList[i].url = placeHolder.url;
+                // assert placeHolder.url is not undefined
+                if (!placeHolder.url) {
+                    throw new Error("placeHolder.url is undefined");
+                }
+                const uid = placeHolder.url.split("?")[1].split("=")[1];
+                pendingList[i].uid = uid;
+            }
+            setReqCount(0);
+            setReadyTaskFileList(pendingList);
+            setPendingList([]);
+            console.log('fileupload[task ready][taskFileList]', pendingList);
+        }
         // file.url is the unique identifier of the file, if not exist, need upload
-    }, [fileList, datasourceFileList]);
+    }, [pendingList, syncList]);
+
+    useEffect(() => {
+        // 01 task pending
+        if (pendingList.length > reqCount && props.onNewFile && props.onNewFile.canExecute) {
+            // 02 req placeHolder
+            props.onNewFile.execute();
+            setReqCount(reqCount + 1);
+            console.log('fileupload[new task req][pendingCount]', reqCount + 1);
+        }
+    }, [pendingList, reqCount, props.onNewFile]);
+
 
     return (
         <div className={props.class}>
             <Dragger
                 multiple
-                fileList={[...datasourceFileList, ...fileList]}
+                fileList={[...syncList.filter(file => file.name), ...readyTaskFileList]}
                 previewFile={file => {
                     return Promise.resolve(file.type);
                 }}
@@ -79,7 +119,8 @@ export function WengaoFileUpload(props: WengaoFileUploadContainerProps): ReactEl
                     if (!isPNG) {
                         message.error(`${file.name} is not a png file`);
                     } else {
-                        setFileList([...fileList, file]);
+                        console.log('fileupload[new task]', pendingList, file);
+                        setPendingList([...pendingList, file]);
                     }
                     // return isPNG || Upload.LIST_IGNORE;
                     return Promise.resolve(false);
@@ -96,7 +137,7 @@ export function WengaoFileUpload(props: WengaoFileUploadContainerProps): ReactEl
                     }
                 }}
                 onRemove={file => {
-                    setFileList(fileList.filter(item => item.uid !== file.uid));
+                    setPendingList(pendingList.filter(item => item.uid !== file.uid));
                 }}
                 onDrop={e => {
                     console.log("Dropped files", e.dataTransfer.files);
@@ -112,7 +153,7 @@ export function WengaoFileUpload(props: WengaoFileUploadContainerProps): ReactEl
             <Button
                 type="primary"
                 onClick={handleUpload}
-                disabled={fileList.length === 0}
+                disabled={readyTaskFileList.length === 0}
                 loading={uploading}
                 style={{ marginTop: 16 }}
             >
