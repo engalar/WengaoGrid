@@ -1,10 +1,12 @@
 import { PluginOption, defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
-import Inspect from "vite-plugin-inspect";
 import { parse } from "@babel/parser";
 import generate from "@babel/generator";
 import traverse from "@babel/traverse";
 import * as t from "@babel/types";
+import vitePluginMendix from "./node_modules/@engalar/vite-plugin-mendix/src";
+import { join } from "path";
+const sourcePath = process.cwd();
+const widgetPackageJson = require(join(sourcePath, "package.json"));
 
 const commonExternalLibs = [
     // "mendix" and internals under "mendix/"
@@ -39,7 +41,7 @@ function rewriteReactImports(): PluginOption {
                 traverse(ast, {
                     ImportDeclaration(path) {
                         if (path.node.source.value === "react") {
-                            path.node.source.value = "http://localhost:8080/dist/commons.js";
+                            path.node.source.value = severUrl + "/test/dist/commons.js";
                             // 修改 react 的导入
                             const specifiers = path.node.specifiers
                                 .map(specifier => {
@@ -74,7 +76,7 @@ function rewriteReactImports(): PluginOption {
                             path.node.specifiers = [
                                 t.importSpecifier(t.identifier("reactExports"), t.identifier("reactExports"))
                             ];
-                        /* } else if (path.node.source.value === "react/jsx-dev-runtime") {
+                            /* } else if (path.node.source.value === "react/jsx-dev-runtime") {
                             // import { jsxRuntimeExports } from 'http://localhost:8080/dist/commons.js';
                             // const { jsx: jsxDEV } = jsxRuntimeExports;
                             path.replaceWithMultiple([
@@ -143,14 +145,25 @@ function rewriteReactImports(): PluginOption {
         configureServer(server) {
             server.httpServer?.once("listening", () => {
                 const address: any = server.httpServer?.address();
-                severUrl = `http://${address.family === "IPv6" ? `[${address.address}]` : address.address}:${
+                severUrl = `http://localhost:${
                     address.port
                 }`;
+                // severUrl = `http://${address.family === "IPv6" ? `[${address.address}]` : address.address}:${
+                //     address.port
+                // }`;
             });
         }
     };
 }
 
+//@ts-ignore
+const mendixPlugin: PluginOption = vitePluginMendix({
+    widgetName: widgetPackageJson.widgetName,
+    widgetPackage: widgetPackageJson.packagePath,
+    testProject: widgetPackageJson.config.projectPath,
+    isReactClient: true
+});
 export default defineConfig({
-    plugins: [react(), Inspect(), rewriteReactImports()]
+    //@ts-ignore
+    plugins: [mendixPlugin, rewriteReactImports()]
 });
