@@ -16,8 +16,7 @@
   },
   "packagePath": "wengao",
   "scripts": {
-    "vite": "vite",
-    "vite:start": "vite --config node_modules/@engalar/vite-plugin-mendix/config/vite.config.js",
+    "vite:start": "vite --config node_modules/@engalar/vite-plugin-mendix/config/_vite_config.js",
     "vite:build": "set __DEV_VITEJS__=true && npm run build",
     "start": "pluggable-widgets-tools start:server",
     "dev": "pluggable-widgets-tools start:web",
@@ -28,16 +27,16 @@
     "release": "pluggable-widgets-tools release:web"
   },
   "devDependencies": {
-    "@engalar/vite-plugin-mendix": "^1.4.0",
+    "@engalar/vite-plugin-mendix": "^2.0.1",
     "@mendix/pluggable-widgets-tools": "^10.7.1",
     "@types/big.js": "^6.0.2",
     "vite": "^5.3.1",
     "vitest": "^1.6.0"
   },
   "dependencies": {
-    "classnames": "^2.2.6",
+    "ahooks": "^3.8.0",
     "antd": "5.19.1",
-    "ahooks": "^3.8.0"
+    "classnames": "^2.2.6"
   },
   "resolutions": {
     "react": "18.2.0",
