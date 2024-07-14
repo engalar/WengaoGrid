@@ -1,7 +1,6 @@
-import { useEffect, useCallback, ReactElement, createElement, useState } from "react";
+import { useRef, useEffect, useCallback, ReactElement, createElement, useState } from "react";
 import { ValueStatus } from "mendix";
 import { Button, message, Upload, UploadFile } from "antd";
-import { useDebounce } from "ahooks";
 
 import { WengaoFileUploadContainerProps } from "../typings/WengaoFileUploadProps";
 
@@ -25,10 +24,31 @@ async function saveDocument(fileBlob: File, guid: string, fileName: string) {
         );
     });
 }
+function useBatchProcessor(batchInterval: number, processBatch: (batch: UploadFile[]) => void) {
+    const [batch, setBatch] = useState<UploadFile[]>([]);
+    const batchRef = useRef<UploadFile[]>([]);
 
+    useEffect(() => {
+        const interval = setInterval(() => {
+            if (batchRef.current.length > 0) {
+                processBatch(batchRef.current);
+                batchRef.current = [];
+                setBatch([]);
+            }
+        }, batchInterval);
+
+        return () => clearInterval(interval);
+    }, [batch]);
+
+    const addToBatch = (item: UploadFile) => {
+        batchRef.current = [...batchRef.current, item];
+        setBatch(batchRef.current);
+    };
+
+    return addToBatch;
+}
 export function WengaoFileUpload(props: WengaoFileUploadContainerProps): ReactElement {
     const [syncList, setSyncList] = useState<UploadFile[]>([]);
-
     /**
      * file upload state, including uploaded files and upload placeholder
      */
@@ -52,10 +72,12 @@ export function WengaoFileUpload(props: WengaoFileUploadContainerProps): ReactEl
      * file upload source, including uploaded files and to upload files
      */
     const [pendingList, setPendingList] = useState<UploadFile[]>([]);
-    const debouncedPendingList = useDebounce(pendingList, { wait: 500 });
     const [readyTaskFileList, setReadyTaskFileList] = useState<UploadFile[]>([]);
     const [uploading, setUploading] = useState(false);
 
+    const addToBatch = useBatchProcessor(1000, (batch: UploadFile[]) => {
+        setPendingList([...pendingList, ...batch]);
+    });
     const handleUpload = useCallback(async () => {
         setUploading(true);
         // save documents one by one, asynchronously promise.all
@@ -77,36 +99,36 @@ export function WengaoFileUpload(props: WengaoFileUploadContainerProps): ReactEl
         const placeholderFileList = syncList.filter(file => !file.name);
         console.log("fileupload[sync][raw, uploaded, placeholder]", syncList, uploadedFileList, placeholderFileList);
 
-        if (placeholderFileList.length === debouncedPendingList.length && debouncedPendingList.length > 0) {
+        if (placeholderFileList.length === pendingList.length && pendingList.length > 0) {
             // 03 all pending task ready(get same count placeholder)
             // iterator over pendingCount
-            for (let i = 0; i < debouncedPendingList.length; i++) {
+            for (let i = 0; i < pendingList.length; i++) {
                 const placeHolder = placeholderFileList[i];
-                debouncedPendingList[i].url = placeHolder.url;
+                pendingList[i].url = placeHolder.url;
                 // assert placeHolder.url is not undefined
                 if (!placeHolder.url) {
                     throw new Error("placeHolder.url is undefined");
                 }
                 const uid = placeHolder.url.split("?")[1].split("=")[1];
-                debouncedPendingList[i].uid = uid;
+                pendingList[i].uid = uid;
             }
             setReqCount(0);
-            setReadyTaskFileList(debouncedPendingList);
+            setReadyTaskFileList(pendingList);
             setPendingList([]);
-            console.log("fileupload[task ready][taskFileList]", debouncedPendingList);
+            console.log("fileupload[task ready][taskFileList]", pendingList);
         }
         // file.url is the unique identifier of the file, if not exist, need upload
-    }, [debouncedPendingList, syncList]);
+    }, [pendingList, syncList]);
 
     useEffect(() => {
         // 01 task pending
-        if (debouncedPendingList.length > reqCount && props.onNewFile && props.onNewFile.canExecute) {
+        if (pendingList.length > reqCount && props.onNewFile && props.onNewFile.canExecute) {
             // 02 req placeHolder
             props.onNewFile.execute();
             setReqCount(reqCount + 1);
             console.log("fileupload[new task req][pendingCount]", reqCount + 1);
         }
-    }, [debouncedPendingList, reqCount, props.onNewFile]);
+    }, [pendingList, reqCount, props.onNewFile]);
 
     return (
         <div className={props.class}>
@@ -123,7 +145,7 @@ export function WengaoFileUpload(props: WengaoFileUploadContainerProps): ReactEl
                     } else {
                         console.log("fileupload[new task]", pendingList, file);
                         // need delay 500ms to collect file into pendingList
-                        setPendingList([...pendingList, file]);
+                        addToBatch(file);
                     }
                     // return isPNG || Upload.LIST_IGNORE;
                     return Promise.resolve(false);
