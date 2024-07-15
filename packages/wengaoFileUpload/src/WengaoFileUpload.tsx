@@ -1,11 +1,14 @@
 import { useRef, useEffect, useCallback, ReactElement, createElement, useState } from "react";
 import { ValueStatus } from "mendix";
-import { Button, message, Upload, UploadFile } from "antd";
-import { useUpdate } from "ahooks"
+import { Button, ConfigProvider, message, Upload, UploadFile } from "antd";
+import { useUpdate } from "ahooks";
+import localeCN from "antd/locale/zh_CN";
+import localeEN from "antd/locale/en_US";
 
 import { WengaoFileUploadContainerProps } from "../typings/WengaoFileUploadProps";
 
 import "./ui/WengaoFileUpload.css";
+import type { Locale } from "antd/es/locale";
 const { Dragger } = Upload;
 
 // https://apidocs.rnd.mendix.com/9/client/mx.data.html#.saveDocument
@@ -60,11 +63,12 @@ export function WengaoFileUpload(props: WengaoFileUploadContainerProps): ReactEl
             props.datasource.status === ValueStatus.Available &&
             props.datasource.items
         ) {
-            const result = props.datasource.items.map(item => {
+            const result: UploadFile[] = props.datasource.items.map(item => {
                 // file?guid=1234567890
                 const url = props.uploadUrlDatasource!.get(item).value!;
                 const uid = url.split("?")[1].split("=")[1];
-                return { url, uid, name: props.fileNameDatasource!.get(item).value! };
+                const file: UploadFile = { url, uid, name: props.fileNameDatasource!.get(item).value! };
+                return file;
             });
             setSyncList(result);
         }
@@ -136,68 +140,92 @@ export function WengaoFileUpload(props: WengaoFileUploadContainerProps): ReactEl
         }
     }, [pendingList, reqCount, props.onNewFile]);
 
-    const handleRemove = useCallback((file: UploadFile) => {
-        const index = syncList.findIndex(item => item.uid === file.uid);
-        if (index !== -1) {
-            const obj = props.datasource?.items?.[index];
-            if (obj && props.onRemoveFile) {
-                props.onRemoveFile?.get(obj).execute();
+    const handleRemove = useCallback(
+        (file: UploadFile) => {
+            const index = syncList.findIndex(item => item.uid === file.uid);
+            if (index !== -1) {
+                const obj = props.datasource?.items?.[index];
+                if (obj && props.onRemoveFile) {
+                    props.onRemoveFile?.get(obj).execute();
+                }
             }
-        }
-    }, [syncList, props.datasource]);
+        },
+        [syncList, props.datasource]
+    );
 
+    // combine two type
+    let locale: Locale & { _?: any };
+    // @ts-ignore
+    switch (mx.session.getConfig("locale.code")) {
+        case "zh_CN":
+            locale = localeCN;
+            locale._ = {
+                a: "点击或拖动文件到此区域以上传",
+                b: `支持单个或批量上传。严禁上传公司数据或其他禁止的文件。`
+            };
+            break;
+        case "en_US":
+        default:
+            locale = localeEN;
+            locale._ = {
+                a: "Click or drag file to this area to upload",
+                b: `Support for a single or bulk upload. Strictly prohibited from uploading company data or other banned
+                        files.`
+            };
+    }
+    // https://ant-design.antgroup.com/components/upload-cn#api
     return (
         <div className={props.class}>
-            <Dragger
-                multiple
-                fileList={[...syncList.filter(file => file.name), ...readyTaskFileList]}
-                previewFile={file => {
-                    return Promise.resolve(file.type);
-                }}
-                beforeUpload={file => {
-                    const isPNG = file.type === "image/png";
-                    if (!isPNG) {
-                        message.error(`${file.name} is not a png file`);
-                    } else {
-                        console.log("fileupload[new task]", pendingList, file);
-                        // need delay 500ms to collect file into pendingList
-                        addToBatch(file);
-                    }
-                    // return isPNG || Upload.LIST_IGNORE;
-                    return Promise.resolve(false);
-                }}
-                onChange={info => {
-                    const { status } = info.file;
-                    if (status !== "uploading") {
-                        console.log(info.file, info.fileList);
-                    }
-                    if (status === "done") {
-                        message.success(`${info.file.name} file uploaded successfully.`);
-                    } else if (status === "error") {
-                        message.error(`${info.file.name} file upload failed.`);
-                    }
-                }}
-                onRemove={handleRemove}
-                onDrop={e => {
-                    console.log("Dropped files", e.dataTransfer.files);
-                }}
-            >
-                <p className="ant-upload-drag-icon"></p>
-                <p className="ant-upload-text">Click or drag file to this area to upload</p>
-                <p className="ant-upload-hint">
-                    Support for a single or bulk upload. Strictly prohibited from uploading company data or other banned
-                    files.
-                </p>
-            </Dragger>
-            <Button
-                type="primary"
-                onClick={handleUpload}
-                disabled={readyTaskFileList.length === 0}
-                loading={uploading}
-                style={{ marginTop: 16 }}
-            >
-                {uploading ? "Uploading" : "Start Upload"}
-            </Button>
+            <ConfigProvider locale={locale}>
+                <Dragger
+                    multiple
+                    listType="picture-card"
+                    fileList={[...syncList.filter(file => file.name), ...readyTaskFileList]}
+                    previewFile={file => {
+                        return Promise.resolve(file.type);
+                    }}
+                    beforeUpload={file => {
+                        const isPNG = file.type === "image/png";
+                        if (!isPNG) {
+                            message.error(`${file.name} is not a png file`);
+                        } else {
+                            console.log("fileupload[new task]", pendingList, file);
+                            // need delay 500ms to collect file into pendingList
+                            addToBatch(file);
+                        }
+                        // return isPNG || Upload.LIST_IGNORE;
+                        return Promise.resolve(false);
+                    }}
+                    onChange={info => {
+                        const { status } = info.file;
+                        if (status !== "uploading") {
+                            console.log(info.file, info.fileList);
+                        }
+                        if (status === "done") {
+                            message.success(`${info.file.name} file uploaded successfully.`);
+                        } else if (status === "error") {
+                            message.error(`${info.file.name} file upload failed.`);
+                        }
+                    }}
+                    onRemove={handleRemove}
+                    onDrop={e => {
+                        console.log("Dropped files", e.dataTransfer.files);
+                    }}
+                >
+                    <p className="ant-upload-drag-icon"></p>
+                    <p className="ant-upload-text">{locale._.a}</p>
+                    <p className="ant-upload-hint">{locale._.b}</p>
+                </Dragger>
+                <Button
+                    type="primary"
+                    onClick={handleUpload}
+                    disabled={readyTaskFileList.length === 0}
+                    loading={uploading}
+                    style={{ marginTop: 16 }}
+                >
+                    {uploading ? "Uploading" : "Start Upload"}
+                </Button>
+            </ConfigProvider>
         </div>
     );
 }
