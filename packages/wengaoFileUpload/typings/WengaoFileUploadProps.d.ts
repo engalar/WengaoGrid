@@ -4,7 +4,7 @@
  * @author Mendix Widgets Framework Team
  */
 import { CSSProperties } from "react";
-import { ActionValue, DynamicValue, EditableValue, ListValue, ListAttributeValue, ListExpressionValue } from "mendix";
+import { ActionValue, DynamicValue, EditableValue, ListValue, ListActionValue, ListAttributeValue, ListExpressionValue } from "mendix";
 
 export interface WengaoFileUploadContainerProps {
     name: string;
@@ -19,6 +19,7 @@ export interface WengaoFileUploadContainerProps {
     datasource?: ListValue;
     onUpload?: ActionValue;
     onNewFile?: ActionValue;
+    onRemoveFile?: ListActionValue;
 }
 
 export interface WengaoFileUploadPreviewProps {
@@ -38,4 +39,5 @@ export interface WengaoFileUploadPreviewProps {
     datasource: {} | { caption: string } | { type: string } | null;
     onUpload: {} | null;
     onNewFile: {} | null;
+    onRemoveFile: {} | null;
 }

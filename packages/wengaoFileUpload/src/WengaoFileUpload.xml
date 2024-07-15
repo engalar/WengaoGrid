@@ -47,6 +47,10 @@
                 <caption>onNewFile</caption>
                 <description></description>
             </property>
+            <property key="onRemoveFile" type="action" dataSource="datasource">
+                <caption>onRemoveFile</caption>
+                <description></description>
+            </property>
         </propertyGroup>
     </properties>
 </widget>

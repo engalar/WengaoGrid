@@ -1,6 +1,7 @@
 import { useRef, useEffect, useCallback, ReactElement, createElement, useState } from "react";
 import { ValueStatus } from "mendix";
 import { Button, message, Upload, UploadFile } from "antd";
+import { useUpdate } from "ahooks"
 
 import { WengaoFileUploadContainerProps } from "../typings/WengaoFileUploadProps";
 
@@ -78,13 +79,18 @@ export function WengaoFileUpload(props: WengaoFileUploadContainerProps): ReactEl
     const addToBatch = useBatchProcessor(1000, (batch: UploadFile[]) => {
         setPendingList([...pendingList, ...batch]);
     });
+    const update = useUpdate();
     const handleUpload = useCallback(async () => {
         setUploading(true);
         // save documents one by one, asynchronously promise.all
         await readyTaskFileList.reduce(async (prevPromise, file) => {
             await prevPromise;
+            file.status = "uploading";
+            update();
             // @ts-ignore
             await saveDocument(file, file.uid, file.name || file.fileName);
+            file.status = "done";
+            update();
         }, Promise.resolve());
         setUploading(false);
         setReadyTaskFileList([]);
@@ -130,6 +136,16 @@ export function WengaoFileUpload(props: WengaoFileUploadContainerProps): ReactEl
         }
     }, [pendingList, reqCount, props.onNewFile]);
 
+    const handleRemove = useCallback((file: UploadFile) => {
+        const index = syncList.findIndex(item => item.uid === file.uid);
+        if (index !== -1) {
+            const obj = props.datasource?.items?.[index];
+            if (obj && props.onRemoveFile) {
+                props.onRemoveFile?.get(obj).execute();
+            }
+        }
+    }, [syncList, props.datasource]);
+
     return (
         <div className={props.class}>
             <Dragger
@@ -161,9 +177,7 @@ export function WengaoFileUpload(props: WengaoFileUploadContainerProps): ReactEl
                         message.error(`${info.file.name} file upload failed.`);
                     }
                 }}
-                onRemove={file => {
-                    setPendingList(pendingList.filter(item => item.uid !== file.uid));
-                }}
+                onRemove={handleRemove}
                 onDrop={e => {
                     console.log("Dropped files", e.dataTransfer.files);
                 }}
