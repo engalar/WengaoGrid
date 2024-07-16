@@ -1,6 +1,7 @@
 /*
 Place your custom CSS here
 */
-.widget-hello-world {
-
+.wengao-univer {
+    min-height: 500px;
+    display: grid;
 }

@@ -1,10 +1,12 @@
-import { ReactElement, createElement } from "react";
-import { HelloWorldSample } from "./components/HelloWorldSample";
+import { ReactElement } from "react";
+import App from './App';
+import './index.css';
 
 import { WengaoUniverContainerProps } from "../typings/WengaoUniverProps";
 
 import "./ui/WengaoUniver.css";
+import classNames from "classnames";
 
-export function WengaoUniver({ sampleText }: WengaoUniverContainerProps): ReactElement {
-    return <HelloWorldSample sampleText={sampleText ? sampleText : "World"} />;
+export function WengaoUniver(props: WengaoUniverContainerProps): ReactElement {
+    return <div className={classNames("wengao-univer", props.class)}><App /></div>;
 }

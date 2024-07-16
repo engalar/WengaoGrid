@@ -1,9 +1,8 @@
-import { ReactElement, createElement } from "react";
-import { HelloWorldSample } from "./components/HelloWorldSample";
+import { ReactElement } from "react";
 import { WengaoUniverPreviewProps } from "../typings/WengaoUniverProps";
 
 export function preview({ sampleText }: WengaoUniverPreviewProps): ReactElement {
-    return <HelloWorldSample sampleText={sampleText} />;
+    return <span>{sampleText}</span>;
 }
 
 export function getPreviewCss(): string {
