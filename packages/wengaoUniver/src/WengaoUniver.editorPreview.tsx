@@ -1,4 +1,4 @@
-import { ReactElement } from "react";
+import { ReactElement, createElement } from "react";
 import { WengaoUniverPreviewProps } from "../typings/WengaoUniverProps";
 
 export function preview({ sampleText }: WengaoUniverPreviewProps): ReactElement {

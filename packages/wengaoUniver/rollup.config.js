@@ -26,9 +26,6 @@ async function _loadCustomConfig(args) {
     const result = args.configDefaultConfig;
     for (let index = 0; index < result.length; index++) {
         const cfg = result[index];
-        cfg.plugins.splice(0, 0, json(), univerPlugin());
-        //file path cfg.output.file, get its dir path string
-        cfg.output.dir = path.dirname(cfg.output.file);
-        delete cfg.output.file;
+        cfg.plugins.push(json(), univerPlugin());
     }
 }

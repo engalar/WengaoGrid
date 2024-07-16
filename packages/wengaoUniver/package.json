@@ -28,11 +28,12 @@
   "devDependencies": {
     "@engalar/vite-plugin-mendix": "^2.0.2",
     "@mendix/pluggable-widgets-tools": "^10.7.1",
+    "@types/big.js": "^6.0.2",
     "@univerjs/vite-plugin": "^0.4.4",
+    "eslint-plugin-jest": "^28.6.0",
     "eslint-plugin-react": "^7.34.3",
     "eslint-plugin-react-hooks": "^4.6.2",
-    "eslint-plugin-react-refresh": "^0.4.7",
-    "@types/big.js": "^6.0.2"
+    "eslint-plugin-react-refresh": "^0.4.7"
   },
   "dependencies": {
     "@univerjs/core": "0.2.3",
