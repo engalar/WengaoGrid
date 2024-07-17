@@ -17,6 +17,7 @@
   "packagePath": "wengao",
   "scripts": {
     "vite": "vite",
+    "build:univer": "vite build --config vite.config.univer.js",
     "start": "pluggable-widgets-tools start:server",
     "dev": "pluggable-widgets-tools start:web",
     "build": "pluggable-widgets-tools build:web",
@@ -36,6 +37,7 @@
     "eslint-plugin-react-refresh": "^0.4.7"
   },
   "dependencies": {
+    "univer-lib": "file:./univer",
     "@univerjs/core": "0.2.3",
     "@univerjs/design": "0.2.3",
     "@univerjs/docs": "0.2.3",

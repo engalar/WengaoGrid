@@ -1,10 +1,8 @@
 /* eslint-disable n/no-missing-import */
 /* eslint-disable import/no-nodejs-modules */
 import { existsSync } from "fs";
-import path, { join } from "path";
+import { join, dirname } from "path";
 import loadConfigFile from "rollup/dist/loadConfigFile";
-import { univerPlugin } from "@univerjs/vite-plugin";
-import json from "@rollup/plugin-json";
 const sourcePath = process.cwd();
 
 export default async args => {
@@ -23,9 +21,8 @@ export default async args => {
 async function _loadCustomConfig(args) {
     // Your custom config loading logic here
     //...
-    const result = args.configDefaultConfig;
-    for (let index = 0; index < result.length; index++) {
-        const cfg = result[index];
-        cfg.plugins.push(json(), univerPlugin());
-    }
+    args.configDefaultConfig.forEach(cfg => {
+        cfg.output.dir = dirname(cfg.output.file);
+        delete cfg.output.file;
+    });
 }

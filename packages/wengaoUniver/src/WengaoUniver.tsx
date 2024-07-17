@@ -1,6 +1,7 @@
 import { ReactElement, createElement } from "react";
-import App from "./App";
-import "./index.css";
+// @ts-ignore
+import App from "univer-lib";
+import "univer-lib/dist/style.css";
 
 import { WengaoUniverContainerProps } from "../typings/WengaoUniverProps";
 

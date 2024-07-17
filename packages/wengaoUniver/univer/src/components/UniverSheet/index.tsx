@@ -1,14 +1,12 @@
 import "./index.css";
 
-import { ICommandInfo, IWorkbookData, Univer, UniverInstanceType, Workbook, LocaleType, Tools } from "@univerjs/core";
+import { ICommandInfo, IWorkbookData, Univer, UniverInstanceType, Workbook, LocaleType } from "@univerjs/core";
 import { defaultTheme } from "@univerjs/design";
-// import { UniverDocsPlugin } from "@univerjs/docs";
 import { UniverFormulaEnginePlugin } from "@univerjs/engine-formula";
 import { DeviceInputEventType, UniverRenderEnginePlugin } from "@univerjs/engine-render";
 import { SelectionMoveType, SetSelectionsOperation, UniverSheetsPlugin } from "@univerjs/sheets";
 import { UniverSheetsFormulaPlugin } from "@univerjs/sheets-formula";
 import { UniverSheetsUIPlugin } from "@univerjs/sheets-ui";
-// import { UniverDocsUIPlugin } from "@univerjs/docs-ui";
 import { UniverUIPlugin } from "@univerjs/ui";
 import { FUniver } from "@univerjs/facade";
 import { forwardRef, useEffect, useImperativeHandle, useRef, createElement } from "react";
@@ -21,12 +19,7 @@ import { forwardRef, useEffect, useImperativeHandle, useRef, createElement } fro
  * 【从虚拟模块导入语言包】以及【自动导入样式】是由 Univer Plugins 提供的能力，详情参考：https://univer.ai/zh-CN/guides/sheet/advanced/univer-plugins
  * 如果您在使用该插件的时候出现了问题，或者无法理解如何使用，请禁用 Univer Plugins，并手动导入语言包和样式
  */
-// import { zhCN, enUS } from 'univer:locales'
-import DesignZhCN from "@univerjs/design/lib/locale/zh-CN.json";
-import UIZhCN from "@univerjs/ui/lib/locale/zh-CN.json";
-import DocsUIZhCN from "@univerjs/docs-ui/lib/locale/zh-CN.json";
-import SheetsZhCN from "@univerjs/sheets/lib/locale/zh-CN.json";
-import SheetsUIZhCN from "@univerjs/sheets-ui/lib/locale/zh-CN.json";
+import { zhCN, enUS } from 'univer:locales'
 
 export const UniverSheet = forwardRef(({ data, onClick, onDbClick }: any, ref) => {
     const univerRef = useRef<Univer>();
@@ -52,7 +45,8 @@ export const UniverSheet = forwardRef(({ data, onClick, onDbClick }: any, ref) =
             theme: defaultTheme,
             locale: LocaleType.ZH_CN,
             locales: {
-                [LocaleType.ZH_CN]: Tools.deepMerge(SheetsZhCN, DocsUIZhCN, SheetsUIZhCN, UIZhCN, DesignZhCN)
+                [LocaleType.ZH_CN]: zhCN,
+                [LocaleType.EN_US]: enUS,
             }
         });
         univerRef.current = univer;

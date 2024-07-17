@@ -4,5 +4,9 @@
     "resolveJsonModule": true,
     "baseUrl": "./"
   },
-  "include": ["./src", "./typings"]
+  "include": [
+    "./src",
+    "./typings",
+    "./univer"
+  ]
 }
