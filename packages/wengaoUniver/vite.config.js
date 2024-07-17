@@ -1,7 +1,7 @@
 import { defineConfig } from "vite";
 import vitePluginMendix from "@engalar/vite-plugin-mendix";
-// import { univerPlugin } from "@univerjs/vite-plugin";
-import { join } from "path";
+import { univerPlugin } from "@univerjs/vite-plugin";
+import { join, resolve } from "path";
 const sourcePath = process.cwd();
 const widgetPackageJson = require(join(sourcePath, "package.json"));
 
@@ -11,12 +11,19 @@ export default defineConfig({
         include: ["react/jsx-runtime", "react-dom", "scheduler"]
     },
     plugins: [
-        // univerPlugin(),
+        univerPlugin({
+            css: false
+        }),
         vitePluginMendix({
             widgetName: widgetPackageJson.widgetName,
             widgetPackage: widgetPackageJson.packagePath,
             testProject: widgetPackageJson.config.projectPath,
             isReactClient: false
         })
-    ]
+    ],
+    resolve: {
+        alias: {
+            "univer-lib": resolve(__dirname, "./univer/src/App.tsx")
+        }
+    }
 });
