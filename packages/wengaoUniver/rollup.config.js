@@ -1,7 +1,7 @@
 /* eslint-disable n/no-missing-import */
 /* eslint-disable import/no-nodejs-modules */
 import { existsSync } from "fs";
-import { join, dirname } from "path";
+import { join, dirname, basename, extname } from "path";
 import loadConfigFile from "rollup/dist/loadConfigFile";
 const sourcePath = process.cwd();
 
@@ -23,6 +23,11 @@ async function _loadCustomConfig(args) {
     //...
     args.configDefaultConfig.forEach(cfg => {
         cfg.output.dir = dirname(cfg.output.file);
+        // get file name from full path
+        const fileName = basename(cfg.output.file);
+        // set entry file name to [name].js
+        cfg.output.entryFileNames = fileName;
+        cfg.output.chunkFileNames = `[name]-[hash].${extname(fileName)}`;
         delete cfg.output.file;
     });
 }

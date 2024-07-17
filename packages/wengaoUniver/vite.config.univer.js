@@ -11,11 +11,11 @@ export default defineConfig({
         lib: {
             entry: path.resolve(__dirname, "univer/src/App.tsx"),
             name: "UniverLib",
-            fileName: `univer.mjs`,
+            fileName: `univer`,
             formats: ["es"]
         },
         rollupOptions: {
-            external: ["react"]
+            external: ["react", "react-dom"]
         }
     }
 });

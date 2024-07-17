@@ -2,6 +2,8 @@ import "./index.css";
 
 import { ICommandInfo, IWorkbookData, Univer, UniverInstanceType, Workbook, LocaleType } from "@univerjs/core";
 import { defaultTheme } from "@univerjs/design";
+import { UniverDocsPlugin } from "@univerjs/docs";
+import { UniverDocsUIPlugin } from "@univerjs/docs-ui";
 import { UniverFormulaEnginePlugin } from "@univerjs/engine-formula";
 import { DeviceInputEventType, UniverRenderEnginePlugin } from "@univerjs/engine-render";
 import { SelectionMoveType, SetSelectionsOperation, UniverSheetsPlugin } from "@univerjs/sheets";
@@ -59,10 +61,10 @@ export const UniverSheet = forwardRef(({ data, onClick, onDbClick }: any, ref) =
         });
 
         // doc plugins
-        // univer.registerPlugin(UniverDocsPlugin, {
-        //     hasScroll: false
-        // });
-        // univer.registerPlugin(UniverDocsUIPlugin);
+        univer.registerPlugin(UniverDocsPlugin, {
+            hasScroll: false
+        });
+        univer.registerPlugin(UniverDocsUIPlugin);
 
         // sheet plugins
         univer.registerPlugin(UniverSheetsPlugin);
