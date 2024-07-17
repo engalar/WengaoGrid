@@ -17,6 +17,7 @@
   "packagePath": "wengao",
   "scripts": {
     "vite": "vite",
+    "vite:build": "set __DEV_VITEJS__=true && npm run build",
     "build:univer": "vite build --config vite.config.univer.js",
     "start": "pluggable-widgets-tools start:server",
     "dev": "pluggable-widgets-tools start:web",

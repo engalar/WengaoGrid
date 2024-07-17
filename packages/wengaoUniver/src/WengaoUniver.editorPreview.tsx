@@ -1,8 +1,8 @@
 import { ReactElement, createElement } from "react";
 import { WengaoUniverPreviewProps } from "../typings/WengaoUniverProps";
 
-export function preview({ sampleText }: WengaoUniverPreviewProps): ReactElement {
-    return <span>{sampleText}</span>;
+export function preview(props: WengaoUniverPreviewProps): ReactElement {
+    return <span>{props.class}</span>;
 }
 
 export function getPreviewCss(): string {

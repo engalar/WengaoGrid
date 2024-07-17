@@ -1,16 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<widget id="wengao.wengaouniver.WengaoUniver" pluginWidget="true" needsEntityContext="true" offlineCapable="true"
-        supportedPlatform="Web"
-        xmlns="http://www.mendix.com/widget/1.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.mendix.com/widget/1.0/ ../node_modules/mendix/custom_widget.xsd">
+<widget id="wengao.wengaouniver.WengaoUniver" pluginWidget="true" needsEntityContext="true" offlineCapable="true" supportedPlatform="Web"
+    xmlns="http://www.mendix.com/widget/1.0/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mendix.com/widget/1.0/ ../node_modules/mendix/custom_widget.xsd">
     <name>Wengao Univer</name>
     <description>My widget description</description>
     <icon/>
     <properties>
         <propertyGroup caption="General">
-            <property key="sampleText" type="string" required="false">
-                <caption>Default value</caption>
-                <description>Sample text input</description>
+            <property key="data" type="datasource" required="false" isList="true">
+                <caption>data source</caption>
+                <description></description>
+            </property>
+            <property key="rowStart" type="integer" defaultValue="0">
+                <caption>row start</caption>
+                <description></description>
+            </property>
+            <property key="rowGap" type="integer" defaultValue="1">
+                <caption>row gap</caption>
+                <description></description>
+            </property>
+            <property key="columns" type="object" isList="true" required="false">
+                <caption>columns</caption>
+                <description></description>
+                <properties>
+                    <propertyGroup caption="Column">
+                        <property key="name" type="string">
+                            <caption>name</caption>
+                            <description></description>
+                        </property>
+                        <property key="column" type="integer" defaultValue="0">
+                            <caption>column</caption>
+                            <description></description>
+                        </property>
+                        <property key="columnAttr" type="attribute" dataSource="../data">
+                            <caption>column attribute</caption>
+                            <description></description>
+                            <attributeTypes>
+                                <attributeType name="String" />
+                                <attributeType name="Integer" />
+                                <attributeType name="Float" />
+                                <attributeType name="Boolean" />
+                                <attributeType name="DateTime" />
+                            </attributeTypes>
+                        </property>
+                    </propertyGroup>
+                </properties>
             </property>
         </propertyGroup>
     </properties>
