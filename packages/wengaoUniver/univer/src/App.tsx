@@ -1,13 +1,30 @@
 import { useEffect, useRef, useState, ReactElement, createElement, Fragment } from "react";
 import { UniverSheet } from "./components/UniverSheet";
 import { getDefaultWorkbookData } from "./assets/default-workbook-data";
-import { CommandType, ICommandInfo, Univer } from "@univerjs/core";
+import { CommandType, ICommandInfo, IWorkbookData, Univer } from "@univerjs/core";
 import { FUniver } from "@univerjs/facade";
 import { SetWorksheetColWidthMutation, SetWorksheetRowHeightMutation, SetStyleCommand } from "@univerjs/sheets";
 
-function App(): ReactElement {
-    const [data, setData] = useState(() => getDefaultWorkbookData());
+export interface IKeyMap<T> {
+    [key: number]: T;
+}
+
+function App({ cellData = {} }: { cellData: IKeyMap<IKeyMap<string | number | boolean>> }): ReactElement {
+    console.log(JSON.stringify(cellData, null, 2));
+
+    const [data, setData] = useState<IWorkbookData>(() => getDefaultWorkbookData());
     const univerRef = useRef<Univer>();
+
+    useEffect(() => {
+        //@ts-ignore
+        const univerAPI: FUniver = univerRef.current?.univerAPI.current;
+        Object.keys(cellData).forEach((rowKey) => {
+            Object.keys(cellData![+rowKey]).forEach(colKey => {
+                univerAPI.getActiveWorkbook()?.getSheets()[0].getRange(+rowKey, +colKey, 1, 1)
+                    ?.setValue(cellData[+rowKey][+colKey]);
+            });
+        });
+    }, [cellData]);
 
     useEffect(() => {
         /** @type { import("@univerjs/facade").FUniver } */

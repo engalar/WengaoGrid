@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { BooleanNumber, LocaleType, SheetTypes } from "@univerjs/core";
+import { BooleanNumber, IWorkbookData, LocaleType, SheetTypes } from "@univerjs/core";
 
 /**
  * Default workbook data
  * @returns {IWorkbookData} document see https://univer.work/api/core/interfaces/IWorkbookData.html
  */
-export const getDefaultWorkbookData = (cellValue = "Hello World") => {
+export const getDefaultWorkbookData: (cellValue?: string) => IWorkbookData = (cellValue = "Hello World") => {
     return {
         id: "workbook-01",
         locale: LocaleType.ZH_CN,
         name: "universheet",
         sheetOrder: ["sheet-01", "sheet-02", "sheet-03"],
         appVersion: "3.0.0-alpha",
+        styles: {},
         sheets: {
             "sheet-01": {
                 type: SheetTypes.GRID,
