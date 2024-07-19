@@ -3,6 +3,7 @@ import { ValueStatus } from "mendix";
 import App, { Selection, ISelection, IKeyMap } from "univer-lib";
 import { connectInjector } from '@wendellhu/redi/react-bindings';
 
+import { useObservable } from "@univerjs/ui";
 import "./ui/style.css";
 
 import { WengaoUniverContainerProps } from "../typings/WengaoUniverProps";
@@ -35,15 +36,17 @@ export function WengaoUniver(props: WengaoUniverContainerProps): ReactElement {
     }, [props.data]);
     const rowStart = props.rowStart || 0;
     const rowGap = props.rowGap;
-    const injector = useMemo(() => {
-        const _injector = new Injector();
-        _injector.add([ISelection, new Selection])
-        return _injector;
+    const [AppWrap, injector] = useMemo(() => {
+        const injector = new Injector();
+        injector.add([ISelection, new Selection])
+        return [connectInjector(App, injector), injector];
     }, []);
-    connectInjector(App, injector);
+    const selection = injector.get(ISelection);
+    const range = useObservable(selection.range$);
     return (
         <div className={classNames("wengao-univer", props.class)}>
-            <App cellData={data} />
+            <AppWrap cellData={data} />
+            <span>{JSON.stringify(range, null, 2)}</span>
         </div>
     );
 }
