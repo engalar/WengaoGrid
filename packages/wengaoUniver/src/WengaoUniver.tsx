@@ -1,8 +1,7 @@
 import { ReactElement, createElement, useEffect, useState, useMemo } from "react";
 import { ValueStatus } from "mendix";
-import App from "univer-lib";
+import App, { Selection, ISelection, IKeyMap } from "univer-lib";
 import { connectInjector } from '@wendellhu/redi/react-bindings';
-import { IKeyMap } from "univer/src";
 
 import "./ui/style.css";
 
@@ -10,7 +9,8 @@ import { WengaoUniverContainerProps } from "../typings/WengaoUniverProps";
 
 import "./ui/WengaoUniver.css";
 import classNames from "classnames";
-import { Inject, Injector } from "@wendellhu/redi";
+import { Injector } from "@wendellhu/redi";
+
 
 export function WengaoUniver(props: WengaoUniverContainerProps): ReactElement {
     const [data, setData] = useState<IKeyMap<IKeyMap<string | number | boolean>>>([]);
@@ -37,6 +37,7 @@ export function WengaoUniver(props: WengaoUniverContainerProps): ReactElement {
     const rowGap = props.rowGap;
     const injector = useMemo(() => {
         const _injector = new Injector();
+        _injector.add([ISelection, new Selection])
         return _injector;
     }, []);
     connectInjector(App, injector);

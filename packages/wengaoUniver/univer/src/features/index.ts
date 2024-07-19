@@ -1,3 +1,4 @@
+import { createIdentifier } from "@wendellhu/redi";
 import { Subject } from "rxjs";
 
 export interface SelectionRange {
@@ -11,6 +12,9 @@ export interface ISelection {
     range$: Subject<SelectionRange>;
     clear$: Subject<void>;
 }
+
+export const ISelection = createIdentifier<ISelection>("some.name.unique.ISelection");
+
 
 export class Selection implements ISelection {
     range$ = new Subject<SelectionRange>();
