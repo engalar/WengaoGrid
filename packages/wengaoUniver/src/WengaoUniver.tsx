@@ -1,9 +1,8 @@
-import { ReactElement, createElement, useEffect, useState } from "react";
+import { ReactElement, createElement, useEffect, useState, useMemo } from "react";
 import { ValueStatus } from "mendix";
-// @ts-ignore
 import App from "univer-lib";
-import { IKeyMap } from "univer/src/App";
-
+import { connectInjector } from '@wendellhu/redi/react-bindings';
+import { IKeyMap } from "univer/src";
 
 import "./ui/style.css";
 
@@ -11,17 +10,18 @@ import { WengaoUniverContainerProps } from "../typings/WengaoUniverProps";
 
 import "./ui/WengaoUniver.css";
 import classNames from "classnames";
+import { Inject, Injector } from "@wendellhu/redi";
 
 export function WengaoUniver(props: WengaoUniverContainerProps): ReactElement {
-    const [data, setData] = useState<IKeyMap<IKeyMap<string | number | boolean>>>();
+    const [data, setData] = useState<IKeyMap<IKeyMap<string | number | boolean>>>([]);
     useEffect(() => {
         if (props.data && props.data.status === ValueStatus.Available) {
             const cellData: any = {};
-            const headerRow: IKeyMap<string | number | boolean> = cellData[rowStart] = {};
+            const headerRow: IKeyMap<string | number | boolean> = (cellData[rowStart] = {});
             props.columns.forEach(column => {
                 headerRow[column.column] = column.name;
             });
-            
+
             props.data.items?.forEach((item, index) => {
                 const rowIndex = index * rowGap + rowStart + 1;
                 const row: any = {};
@@ -33,14 +33,13 @@ export function WengaoUniver(props: WengaoUniverContainerProps): ReactElement {
             setData(cellData);
         }
     }, [props.data]);
-    const rowStart = props.rowStart || 0, rowGap = props.rowGap;
-    const columns = props.columns.map(e => {
-        return {
-            name: e.name,
-            column: e.column,
-            att: e.columnAttr
-        };
-    });
+    const rowStart = props.rowStart || 0;
+    const rowGap = props.rowGap;
+    const injector = useMemo(() => {
+        const _injector = new Injector();
+        return _injector;
+    }, []);
+    connectInjector(App, injector);
     return (
         <div className={classNames("wengao-univer", props.class)}>
             <App cellData={data} />

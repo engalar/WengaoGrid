@@ -27,7 +27,7 @@ async function _loadCustomConfig(args) {
         const fileName = basename(cfg.output.file);
         // set entry file name to [name].js
         cfg.output.entryFileNames = fileName;
-        cfg.output.chunkFileNames = `[name]-[hash].${extname(fileName)}`;
+        cfg.output.chunkFileNames = `chunks/[name]-[hash].${extname(fileName)}`;
         delete cfg.output.file;
     });
 }

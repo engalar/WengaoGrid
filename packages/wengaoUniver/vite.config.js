@@ -23,7 +23,7 @@ export default defineConfig({
     ],
     resolve: {
         alias: {
-            "univer-lib": resolve(__dirname, "./univer/src/App.tsx")
+            "univer-lib": resolve(__dirname, "./univer/src/index.tsx")
         }
     }
 });

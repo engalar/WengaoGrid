@@ -2,12 +2,13 @@
   "extends": "@mendix/pluggable-widgets-tools/configs/tsconfig.base",
   "compilerOptions": {
     "resolveJsonModule": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outDir": "./lib/types",
     "experimentalDecorators": true,
     "baseUrl": "./"
   },
   "include": [
     "./src",
-    "./typings",
-    "./univer"
   ]
 }

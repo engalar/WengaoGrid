@@ -7,11 +7,11 @@ import path from "path";
 export default defineConfig({
     plugins: [univerPlugin(), react()],
     build: {
-        outDir: "univer/dist",
+        outDir: "univer/lib/es",
         lib: {
-            entry: path.resolve(__dirname, "univer/src/App.tsx"),
+            entry: path.resolve(__dirname, "univer/src/index.tsx"),
             name: "UniverLib",
-            fileName: `univer`,
+            fileName: `index`,
             formats: ["es"]
         },
         rollupOptions: {
