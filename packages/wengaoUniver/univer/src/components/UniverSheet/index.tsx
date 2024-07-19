@@ -110,7 +110,7 @@ export const UniverSheet = forwardRef(({ data, onClick, onDbClick }: any, ref) =
             if (Date.now() - clickTime < 500) {
                 return;
             }
-            onClick(e);
+            onClick?.(e);
             clickTime = Date.now();
         };
 

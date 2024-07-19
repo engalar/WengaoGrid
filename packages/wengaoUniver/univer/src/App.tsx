@@ -25,16 +25,21 @@ function App({ cellData = {} }: { cellData: IKeyMap<IKeyMap<string | number | bo
         });
     }, [cellData]);
 
+
+    const logSelection = useCallback(() => {
+        const univerAPI: FUniver = univerRef.current?.univerAPI?.current!;
+        const selection = univerAPI.getActiveWorkbook()?.getActiveSheet()?.getSelection();
+        const range = selection?.getActiveRange();
+        if (range) {
+            selection2.range$.next({ x: range.getColumn(), y: range.getRow(), width: range.getWidth(), height: range.getHeight() });
+        }
+    }, [univerRef, selection2]);
     useEffect(() => {
         const univerAPI: FUniver | undefined = univerRef.current?.univerAPI.current!;
         const { dispose } = univerAPI.onCommandExecuted((command: Readonly<ICommandInfo<any>>) => {
             [command]
                 .filter(
-                    // Filter by type, only show the following types
                     cmd =>
-                        /**
-                         * @see https://univer.ai/guides/architecture/architecture/#%E5%91%BD%E4%BB%A4%E7%B3%BB%E7%BB%9F
-                         */
                         [
                             CommandType.COMMAND, // Command
                             CommandType.OPERATION, // Operation
@@ -44,12 +49,8 @@ function App({ cellData = {} }: { cellData: IKeyMap<IKeyMap<string | number | bo
                 .filter(
                     // Filter by id, only show the following ids
                     cmd =>
-                        ![
-                            /^doc./, // doc
-                            /^formula-ui./, // formula-ui
-                            /formula/, //  formula
+                        [
                             /set-selections/, // selection change
-                            /set-activate-cell-edit/ // change cell edit
                             // /set-cell-edit-visible/,  // floating cell edit
                         ].find(rule => {
                             if (rule instanceof RegExp) {
@@ -59,7 +60,9 @@ function App({ cellData = {} }: { cellData: IKeyMap<IKeyMap<string | number | bo
                             }
                         })
                 )
-                .map(cmd => console.log("Command:", cmd.id, "Params:", cmd.params));
+                .map(cmd => {
+                    logSelection();
+                });
         });
 
         return () => {
@@ -68,33 +71,13 @@ function App({ cellData = {} }: { cellData: IKeyMap<IKeyMap<string | number | bo
     }, []);
 
 
-    const logSelection = useCallback(() => {
-        const univerAPI: FUniver = univerRef.current?.univerAPI?.current!;
-        const selection = univerAPI.getActiveWorkbook()?.getActiveSheet()?.getSelection();
-        const range = selection?.getActiveRange();
-        if (range) {
-            console.log(
-                "current selection:",
-                "x",
-                range.getColumn(),
-                "y",
-                range.getRow(),
-                "cell width",
-                range.getWidth(),
-                "cell height",
-                range.getHeight()
-            );
-            selection2.range$.next({ x: range.getColumn(), y: range.getRow(), width: range.getWidth(), height: range.getHeight() });
-        }
-    }, [univerRef, selection2]);
-
     return (
         <UniverSheet
             style={{ flex: "auto" }}
             ref={univerRef}
             data={data}
-            onClick={logSelection}
-            onDbClick={logSelection}
+            onClick={null}
+            onDbClick={null}
         />
     );
 }
