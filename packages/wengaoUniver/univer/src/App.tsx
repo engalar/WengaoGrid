@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, ReactElement, createElement, Fragment } from "react";
+import { useEffect, useRef, useState, ReactElement, createElement, Fragment, MutableRefObject } from "react";
 import { UniverSheet } from "./components/UniverSheet";
 import { getDefaultWorkbookData } from "./assets/default-workbook-data";
 import { CommandType, ICommandInfo, IWorkbookData, Univer } from "@univerjs/core";
@@ -10,14 +10,11 @@ export interface IKeyMap<T> {
 }
 
 function App({ cellData = {} }: { cellData: IKeyMap<IKeyMap<string | number | boolean>> }): ReactElement {
-    console.log(JSON.stringify(cellData, null, 2));
-
     const [data, setData] = useState<IWorkbookData>(() => getDefaultWorkbookData());
-    const univerRef = useRef<Univer>();
+    const univerRef = useRef<Univer & { univerAPI: MutableRefObject<FUniver> }>();
 
     useEffect(() => {
-        //@ts-ignore
-        const univerAPI: FUniver = univerRef.current?.univerAPI.current;
+        const univerAPI = univerRef.current?.univerAPI.current!;
         Object.keys(cellData).forEach((rowKey) => {
             Object.keys(cellData![+rowKey]).forEach(colKey => {
                 univerAPI.getActiveWorkbook()?.getSheets()[0].getRange(+rowKey, +colKey, 1, 1)
@@ -27,11 +24,7 @@ function App({ cellData = {} }: { cellData: IKeyMap<IKeyMap<string | number | bo
     }, [cellData]);
 
     useEffect(() => {
-        /** @type { import("@univerjs/facade").FUniver } */
-        // @ts-ignore
-        const univerAPI: FUniver = univerRef.current?.univerAPI.current;
-        // const univerAPI =  FUniver.newAPI(univerRef.current!);
-
+        const univerAPI: FUniver | undefined = univerRef.current?.univerAPI.current!;
         const { dispose } = univerAPI.onCommandExecuted((command: Readonly<ICommandInfo<any>>) => {
             [command]
                 .filter(
