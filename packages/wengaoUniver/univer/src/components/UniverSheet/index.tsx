@@ -11,7 +11,7 @@ import { UniverSheetsFormulaPlugin } from "@univerjs/sheets-formula";
 import { UniverSheetsUIPlugin } from "@univerjs/sheets-ui";
 import { UniverUIPlugin } from "@univerjs/ui";
 import { FUniver } from "@univerjs/facade";
-import { forwardRef, useEffect, useImperativeHandle, useRef, createElement } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, createElement, useMemo } from "react";
 
 /**
  *
@@ -23,7 +23,12 @@ import { forwardRef, useEffect, useImperativeHandle, useRef, createElement } fro
  */
 import { zhCN, enUS } from 'univer:locales'
 
+
 export const UniverSheet = forwardRef(({ data, onClick, onDbClick }: any, ref) => {
+    const locale = useMemo(() => {
+        // @ts-ignore
+        return mx.session.getConfig("locale").code.replace('_', '') as LocaleType;
+    }, []);
     const univerRef = useRef<Univer>();
     const workbookRef = useRef<Workbook>();
     const containerRef = useRef(null);
@@ -45,7 +50,7 @@ export const UniverSheet = forwardRef(({ data, onClick, onDbClick }: any, ref) =
         }
         const univer = new Univer({
             theme: defaultTheme,
-            locale: LocaleType.ZH_CN,
+            locale: locale,
             locales: {
                 [LocaleType.ZH_CN]: zhCN,
                 [LocaleType.EN_US]: enUS,
