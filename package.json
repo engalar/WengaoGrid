@@ -1,0 +1,8 @@
+{
+	"devDependencies": {
+		"jsdom": "^24.1.1",
+		"vitest": "^2.0.4"
+	},
+	"type": "module",
+	"name": "wengao-widgets"
+}

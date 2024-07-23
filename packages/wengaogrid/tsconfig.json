@@ -8,5 +8,5 @@
     "./src",
     "./vite.config.ts",
     "./typings"
-  ]
+, "../wengaoUniver/src/c.test.js"  ]
 }

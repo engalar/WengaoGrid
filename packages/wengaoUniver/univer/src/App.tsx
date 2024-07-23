@@ -23,6 +23,7 @@ function App({ cellData = {} }: { cellData: IKeyMap<IKeyMap<string | number | bo
                     ?.setValue(cellData[+rowKey][+colKey]);
             });
         });
+        (window as any).univerAPI = univerAPI;
     }, [cellData]);
 
 

@@ -5,6 +5,7 @@
   "description": "My widget description",
   "copyright": "all right reserve",
   "author": "liuwengao@foxmail.com",
+	"type": "module",
   "engines": {
     "node": ">=16"
   },

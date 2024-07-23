@@ -1,7 +1,7 @@
-import { ReactElement, createElement, useEffect, useState, useMemo } from "react";
+import { Fragment, ReactElement, createElement, useEffect, useState, useMemo } from "react";
 import { ValueStatus } from "mendix";
 import App, { Selection, ISelection, IKeyMap } from "univer-lib";
-import { connectInjector } from '@wendellhu/redi/react-bindings';
+import { connectInjector } from "@wendellhu/redi/react-bindings";
 
 import { useObservable } from "@univerjs/ui";
 import "./ui/style.css";
@@ -11,7 +11,6 @@ import { WengaoUniverContainerProps } from "../typings/WengaoUniverProps";
 import "./ui/WengaoUniver.css";
 import classNames from "classnames";
 import { Injector } from "@wendellhu/redi";
-
 
 export function WengaoUniver(props: WengaoUniverContainerProps): ReactElement {
     const [data, setData] = useState<IKeyMap<IKeyMap<string | number | boolean>>>([]);
@@ -38,15 +37,17 @@ export function WengaoUniver(props: WengaoUniverContainerProps): ReactElement {
     const rowGap = props.rowGap;
     const [AppWrap, injector] = useMemo(() => {
         const injector = new Injector();
-        injector.add([ISelection, new Selection])
+        injector.add([ISelection, new Selection()]);
         return [connectInjector(App, injector), injector];
     }, []);
     const selection = injector.get(ISelection);
     const range = useObservable(selection.range$);
     return (
-        <div className={classNames("wengao-univer", props.class)}>
-            <AppWrap cellData={data} />
+        <Fragment>
             <span>{JSON.stringify(range, null, 2)}</span>
-        </div>
+            <div className={classNames("wengao-univer", props.class)}>
+                <AppWrap cellData={data} />
+            </div>
+        </Fragment>
     );
 }

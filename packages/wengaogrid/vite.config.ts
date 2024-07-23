@@ -10,7 +10,7 @@ export default defineConfig({
             widgetPackage: pkg.packagePath,
             testProject: pkg.config.projectPath
         })
-    ]
+    ],
     /* ,     build: {
         lib: {
             entry: "tests/seed/task/index.ts",
@@ -24,4 +24,8 @@ export default defineConfig({
             external: ["react", "react-dom", "react/jsx-runtime", "big.js"]
         }
     } */
+    test: {
+        globals: true,
+        environment: "jsdom"
+    }
 });

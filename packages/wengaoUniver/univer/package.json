@@ -1,4 +1,5 @@
 {
+  "name": "univer-lib",
   "module": "./lib/es/index.mjs",
   "types": "./lib/types/index.d.ts",
   "scripts": {

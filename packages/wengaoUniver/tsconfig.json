@@ -6,8 +6,10 @@
     "baseUrl": "./"
   },
   "include": [
-    "./src",
-    "./typings",
-    "./univer"
+    "src",
+    "typings",
+    "univer",
+    "vite.config.js",
+    "vitest.config.ts"
   ]
 }
