@@ -1,9 +1,11 @@
-import { useCallback, useEffect, useRef, useState, ReactElement, createElement, MutableRefObject } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
+import { useCallback, useEffect, useRef, useState, ReactElement, MutableRefObject, createElement } from "react";
 import { UniverSheet } from "./components/UniverSheet";
 import { getDefaultWorkbookData } from "./assets/default-workbook-data";
 import { CommandType, ICommandInfo, IWorkbookData, Univer } from "@univerjs/core";
 import { FUniver } from "@univerjs/facade";
-import { useDependency } from '@wendellhu/redi/react-bindings';
+import { useDependency } from "@wendellhu/redi/react-bindings";
 import { ISelection } from "./features";
 
 export interface IKeyMap<T> {
@@ -12,27 +14,35 @@ export interface IKeyMap<T> {
 
 function App({ cellData = {} }: { cellData: IKeyMap<IKeyMap<string | number | boolean>> }): ReactElement {
     const selection2 = useDependency(ISelection);
-    const [data,] = useState<IWorkbookData>(() => getDefaultWorkbookData());
-    const univerRef = useRef<Univer & { univerAPI: MutableRefObject<FUniver> }>();
+    const [data] = useState<IWorkbookData>(() => getDefaultWorkbookData());
+    const univerRef = useRef<Univer & { univerAPI: MutableRefObject<FUniver> }>(null);
 
     useEffect(() => {
         const univerAPI = univerRef.current?.univerAPI.current!;
-        Object.keys(cellData).forEach((rowKey) => {
+        Object.keys(cellData).forEach(rowKey => {
             Object.keys(cellData![+rowKey]).forEach(colKey => {
-                univerAPI.getActiveWorkbook()?.getSheets()[0].getRange(+rowKey, +colKey, 1, 1)
+                univerAPI
+                    .getActiveWorkbook()
+                    ?.getSheets()[0]
+                    .getRange(+rowKey, +colKey, 1, 1)
                     ?.setValue(cellData[+rowKey][+colKey]);
             });
         });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (window as any).univerAPI = univerAPI;
     }, [cellData]);
-
 
     const logSelection = useCallback(() => {
         const univerAPI: FUniver = univerRef.current?.univerAPI?.current!;
         const selection = univerAPI.getActiveWorkbook()?.getActiveSheet()?.getSelection();
         const range = selection?.getActiveRange();
         if (range) {
-            selection2.range$.next({ x: range.getColumn(), y: range.getRow(), width: range.getWidth(), height: range.getHeight() });
+            selection2.range$.next({
+                x: range.getColumn(),
+                y: range.getRow(),
+                width: range.getWidth(),
+                height: range.getHeight()
+            });
         }
     }, [univerRef, selection2]);
     useEffect(() => {
@@ -51,7 +61,7 @@ function App({ cellData = {} }: { cellData: IKeyMap<IKeyMap<string | number | bo
                     // Filter by id, only show the following ids
                     cmd =>
                         [
-                            /set-selections/, // selection change
+                            /set-selections/ // selection change
                             // /set-cell-edit-visible/,  // floating cell edit
                         ].find(rule => {
                             if (rule instanceof RegExp) {
@@ -61,7 +71,7 @@ function App({ cellData = {} }: { cellData: IKeyMap<IKeyMap<string | number | bo
                             }
                         })
                 )
-                .map(cmd => {
+                .forEach(() => {
                     logSelection();
                 });
         });
@@ -71,16 +81,7 @@ function App({ cellData = {} }: { cellData: IKeyMap<IKeyMap<string | number | bo
         };
     }, []);
 
-
-    return (
-        <UniverSheet
-            style={{ flex: "auto" }}
-            ref={univerRef}
-            data={data}
-            onClick={null}
-            onDbClick={null}
-        />
-    );
+    return <UniverSheet style={{ flex: "auto" }} ref={univerRef} data={data} onClick={null} onDbClick={null} />;
 }
 
 export default App;

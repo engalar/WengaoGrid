@@ -39,6 +39,7 @@ export interface WengaoUniverPreviewProps {
     style: string;
     styleObject?: CSSProperties;
     readOnly: boolean;
+    renderMode?: "design" | "xray" | "structure";
     data: {} | { caption: string } | { type: string } | null;
     rowStart: number | null;
     rowGap: number | null;

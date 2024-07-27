@@ -1,10 +1,5 @@
-import { describe, it, expect } from "vitest";
-export interface SelectionRange {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-}
+import { IDisposable, Injector } from "@wendellhu/redi";
+import { SelectionRange } from "../univer";
 
 export interface Highlight {
     range?: SelectionRange;
@@ -20,14 +15,14 @@ export interface EntityLayout {
     size: number;
 }
 
-type EntityRange = SelectionRange & { entityIndex: number };
+export type EntityRange = SelectionRange & { entityIndex: number };
 
-function getEntityRanges(layout: EntityLayout): EntityRange[] {
+export function getEntityRanges(layout: EntityLayout): EntityRange[] {
     const { rowStart, rowGap, columnLocations, size } = layout;
     const entityRanges: EntityRange[] = [];
     const minX = Math.min(...columnLocations);
     const width = Math.max(...columnLocations) - minX;
-    for (let i = 0; i < size - 1; i++) {
+    for (let i = 0; i < size; i++) {
         const x = minX;
         const y = rowStart + i * rowGap;
         entityRanges.push({ x, y, width, height: 1, entityIndex: i });
@@ -35,8 +30,7 @@ function getEntityRanges(layout: EntityLayout): EntityRange[] {
 
     return entityRanges;
 }
-
-function getHighlights(layout: EntityLayout, selection: SelectionRange): Highlight[] {
+export function getHighlights(layout: EntityLayout, selection: SelectionRange): Highlight[] {
     const entityRanges: EntityRange[] = getEntityRanges(layout);
     const overlapRanges: EntityRange[] = entityRanges.filter(
         entityRange => getOverlapType(selection, entityRange) !== OverlapType.NONE
@@ -68,42 +62,13 @@ function getOverlapType(a: SelectionRange, b: SelectionRange): OverlapType {
     }
 }
 
-enum OverlapType {
+export enum OverlapType {
     NONE,
     PARTIAL,
     FULL
 }
 
-describe("App", () => {
-    it("should work", () => {
-        const layout: EntityLayout = {
-            rowStart: 0,
-            rowGap: 10,
-            columnLocations: [0, 100, 200],
-            size: 3
-        };
-        const selection: SelectionRange = { x: 50, y: 0, width: 100, height: 10 };
-        const highlights = getHighlights(layout, selection);
-        expect(highlights).to.deep.equal([
-            { range: { x: 50, y: 0, width: 100, height: 10 }, color: "red", entityIndex: 0 },
-            { range: { x: 50, y: 10, width: 100, height: 10 }, color: "red", entityIndex: 1 },
-            { range: { x: 50, y: 20, width: 100, height: 10 }, color: "red", entityIndex: 2 }
-        ]);
-    });
-
-    it("should work2", () => {
-        const layout: EntityLayout = {
-            rowStart: 0,
-            rowGap: 10,
-            columnLocations: [0, 100, 200],
-            size: 3
-        };
-        const selection: SelectionRange = { x: 0, y: 0, width: 100, height: 10 };
-        const highlights = getHighlights(layout, selection);
-        expect(highlights).to.deep.equal([
-            { range: { x: 0, y: 0, width: 100, height: 10 }, color: "red", entityIndex: 0 },
-            { range: { x: 0, y: 10, width: 100, height: 10 }, color: "red", entityIndex: 1 },
-            { range: { x: 0, y: 20, width: 100, height: 10 }, color: "red", entityIndex: 2 }
-        ]);
-    });
-});
+export function applyHighlightFeature(injector: Injector): IDisposable {
+    console.log("widget plugin", injector);
+    return { dispose: () => {} };
+}

@@ -15,7 +15,6 @@ export interface ISelection {
 
 export const ISelection = createIdentifier<ISelection>("some.name.unique.ISelection");
 
-
 export class Selection implements ISelection {
     range$ = new Subject<SelectionRange>();
     clear$ = new Subject<void>();

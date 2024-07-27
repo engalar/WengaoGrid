@@ -1,24 +1,46 @@
-## WengaoUniver
-[My widget description]
+# release
 
-## Features
-[feature highlights]
+```sh
+pnpm run build:univer
+pnpm run install
+pnpm run release
+```
 
-## Usage
-[step by step instructions]
+````html
+<script src="https://unpkg.com/@univerjs/umd@0.2.3/lib/univer.slim.umd.js"></script>
+<script src="https://unpkg.com/@univerjs/umd@0.2.3/lib/locale/zh-CN.js"></script>
+<script src="mxclientsystem/mxui/mxui.js?638575811735436995"></script>
+<script>
+    mendix.lang.registerInDojo("@univerjs/core", UniverCore);
+    mendix.lang.registerInDojo("@univerjs/design", UniverDesign);
+    mendix.lang.registerInDojo("@univerjs/docs", UniverDocs);
+    mendix.lang.registerInDojo("@univerjs/docs-ui", UniverDocsUi);
+    mendix.lang.registerInDojo("@univerjs/engine-formula", UniverEngineFormula);
+    mendix.lang.registerInDojo("@univerjs/engine-render", UniverEngineRender);
+    mendix.lang.registerInDojo("@univerjs/facade", UniverFacade);
+    mendix.lang.registerInDojo("@univerjs/network", UniverNetwork);
+    mendix.lang.registerInDojo("@univerjs/rpc", UniverRpc);
+    mendix.lang.registerInDojo("@univerjs/sheets", UniverSheets);
+    mendix.lang.registerInDojo("@univerjs/sheets-formula", UniverSheetsFormula);
+    mendix.lang.registerInDojo("@univerjs/sheets-numfmt", UniverSheetsNumfmt);
+    mendix.lang.registerInDojo("@univerjs/sheets-ui", UniverSheetsUi);
+    mendix.lang.registerInDojo("@univerjs/ui", UniverUi);
+</script>
+```
+````
 
-## Demo project
-[link to sandbox]
+```js
+require({
+    cache: {
+        wengao: function () {
+            define(["exports"], function (e) {
+                return {
+                    lf: "sb"
+                };
+            });
 
-## Issues, suggestions and feature requests
-[link to GitHub issues]
-
-## Development and contribution
-
-1. Install NPM package dependencies by using: `npm install`. If you use NPM v7.x.x, which can be checked by executing `npm -v`, execute: `npm install --legacy-peer-deps`.
-1. Run `npm start` to watch for code changes. On every change:
-    - the widget will be bundled;
-    - the bundle will be included in a `dist` folder in the root directory of the project;
-    - the bundle will be included in the `deployment` and `widgets` folder of the Mendix test project.
-
-[specify contribution]
+            // or place umd bundle here
+        },
+    }
+});
+```

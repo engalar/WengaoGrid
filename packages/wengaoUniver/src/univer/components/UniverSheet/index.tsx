@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import "./index.css";
 
-import { ICommandInfo, IWorkbookData, Univer, UniverInstanceType, Workbook, LocaleType } from "@univerjs/core";
+import { ICommandInfo, IWorkbookData, Univer, UniverInstanceType, Workbook, LocaleType, Tools } from "@univerjs/core";
 import { defaultTheme } from "@univerjs/design";
 import { UniverDocsPlugin } from "@univerjs/docs";
 import { UniverDocsUIPlugin } from "@univerjs/docs-ui";
@@ -11,23 +13,18 @@ import { UniverSheetsFormulaPlugin } from "@univerjs/sheets-formula";
 import { UniverSheetsUIPlugin } from "@univerjs/sheets-ui";
 import { UniverUIPlugin } from "@univerjs/ui";
 import { FUniver } from "@univerjs/facade";
-import { forwardRef, useEffect, useImperativeHandle, useRef, createElement, useMemo } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, useMemo, createElement } from "react";
 
-/**
- *
- * The ability to import locales from virtual modules and automatically import styles is provided by Univer Plugins. For more details, please refer to: https://univer.ai/guides/sheet/advanced/univer-plugins.
- * If you encounter issues while using the plugin or have difficulty understanding how to use it, please disable Univer Plugins and manually import the language packs and styles.
- *
- * 【从虚拟模块导入语言包】以及【自动导入样式】是由 Univer Plugins 提供的能力，详情参考：https://univer.ai/zh-CN/guides/sheet/advanced/univer-plugins
- * 如果您在使用该插件的时候出现了问题，或者无法理解如何使用，请禁用 Univer Plugins，并手动导入语言包和样式
- */
-import { zhCN, enUS } from 'univer:locales'
-
+import DesignZhCN from "@univerjs/design/lib/locale/zh-CN.json";
+import UIZhCN from "@univerjs/ui/lib/locale/zh-CN.json";
+import DocsUIZhCN from "@univerjs/docs-ui/lib/locale/zh-CN.json";
+import SheetsZhCN from "@univerjs/sheets/lib/locale/zh-CN.json";
+import SheetsUIZhCN from "@univerjs/sheets-ui/lib/locale/zh-CN.json";
 
 export const UniverSheet = forwardRef(({ data, onClick, onDbClick }: any, ref) => {
     const locale = useMemo(() => {
         // @ts-ignore
-        return mx.session.getConfig("locale").code.replace('_', '') as LocaleType;
+        return mx.session.getConfig("locale").code.replace("_", "") as LocaleType;
     }, []);
     const univerRef = useRef<Univer>();
     const workbookRef = useRef<Workbook>();
@@ -39,49 +36,6 @@ export const UniverSheet = forwardRef(({ data, onClick, onDbClick }: any, ref) =
         getData,
         univerAPI: fUniverRef
     }));
-
-    /**
-     * Initialize univer instance and workbook instance
-     * @param data {IWorkbookData} document see https://univer.work/api/core/interfaces/IWorkbookData.html
-     */
-    const init = (data = {}) => {
-        if (!containerRef.current) {
-            throw Error("container not initialized");
-        }
-        const univer = new Univer({
-            theme: defaultTheme,
-            locale: locale,
-            locales: {
-                [LocaleType.ZH_CN]: zhCN,
-                [LocaleType.EN_US]: enUS,
-            }
-        });
-        univerRef.current = univer;
-
-        // core plugins
-        univer.registerPlugin(UniverRenderEnginePlugin);
-        univer.registerPlugin(UniverFormulaEnginePlugin);
-        univer.registerPlugin(UniverUIPlugin, {
-            container: containerRef.current
-        });
-
-        // doc plugins
-        univer.registerPlugin(UniverDocsPlugin, {
-            hasScroll: false
-        });
-        univer.registerPlugin(UniverDocsUIPlugin);
-
-        // sheet plugins
-        univer.registerPlugin(UniverSheetsPlugin);
-        univer.registerPlugin(UniverSheetsUIPlugin);
-        univer.registerPlugin(UniverSheetsFormulaPlugin);
-
-        // create workbook instance
-        workbookRef.current = univer.createUnit<IWorkbookData, Workbook>(UniverInstanceType.UNIVER_SHEET, data);
-
-        // craete Facade API instance
-        fUniverRef.current = FUniver.newAPI(univer);
-    };
 
     /**
      * Destroy univer instance and workbook instance
@@ -103,6 +57,44 @@ export const UniverSheet = forwardRef(({ data, onClick, onDbClick }: any, ref) =
     };
 
     useEffect(() => {
+        const init = (data = {}) => {
+            if (!containerRef.current) {
+                throw Error("container not initialized");
+            }
+            const univer = new Univer({
+                theme: defaultTheme,
+                locale,
+                locales: {
+                    [LocaleType.ZH_CN]: Tools.deepMerge(SheetsZhCN, DocsUIZhCN, SheetsUIZhCN, UIZhCN, DesignZhCN)
+                }
+            });
+            univerRef.current = univer;
+
+            // core plugins
+            univer.registerPlugin(UniverRenderEnginePlugin);
+            univer.registerPlugin(UniverFormulaEnginePlugin);
+            // @ts-ignore
+            univer.registerPlugin(UniverUIPlugin, {
+                container: containerRef.current
+            });
+
+            // doc plugins
+            univer.registerPlugin(UniverDocsPlugin, {
+                hasScroll: false
+            });
+            univer.registerPlugin(UniverDocsUIPlugin);
+
+            // sheet plugins
+            univer.registerPlugin(UniverSheetsPlugin);
+            univer.registerPlugin(UniverSheetsUIPlugin);
+            univer.registerPlugin(UniverSheetsFormulaPlugin);
+
+            // create workbook instance
+            workbookRef.current = univer.createUnit<IWorkbookData, Workbook>(UniverInstanceType.UNIVER_SHEET, data);
+
+            // craete Facade API instance
+            fUniverRef.current = FUniver.newAPI(univer);
+        };
         init(data);
 
         let clickTime = 0;
@@ -142,7 +134,7 @@ export const UniverSheet = forwardRef(({ data, onClick, onDbClick }: any, ref) =
         return () => {
             destroyUniver();
         };
-    }, [data, onClick, onDbClick]);
+    }, [data, onClick, onDbClick, locale]);
 
     return <div ref={containerRef} className="univer-container"></div>;
 });
